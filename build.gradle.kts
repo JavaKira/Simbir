@@ -26,6 +26,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("io.jsonwebtoken:jjwt-api:0.12.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.2")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.2")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("org.postgresql:postgresql")
