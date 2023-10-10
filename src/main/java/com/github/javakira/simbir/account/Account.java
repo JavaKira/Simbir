@@ -1,7 +1,10 @@
 package com.github.javakira.simbir.account;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,12 +13,15 @@ import java.util.Collection;
 import java.util.List;
 
 @Data
+@Builder
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Account implements UserDetails {
     @Id
     @GeneratedValue
     private Long id;
-    private String login;
+    private String username;
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -33,7 +39,7 @@ public class Account implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return username;
     }
 
     @Override
