@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
                     authorizationManagerRequestMatcherRegistry
-                            .requestMatchers("/api/Account/SingIn", "api/Account/SingUp")
+                            .requestMatchers("/api/Account/SingIn", "api/Account/SingUp", "api/Transport/")
                             .permitAll()
                             .anyRequest()
                             .authenticated();
