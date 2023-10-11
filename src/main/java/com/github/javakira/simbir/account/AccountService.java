@@ -42,4 +42,9 @@ public class AccountService {
         String jwtToken = jwtService.generateToken(account);
         return new AuthResponse(jwtToken);
     }
+
+    public void singOut(LogoutRequest request) {
+        String jwt = request.getToken();
+
+    }
 }
