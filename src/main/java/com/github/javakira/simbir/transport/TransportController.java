@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/Transport")
@@ -19,7 +21,12 @@ public class TransportController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<String> getTransport(@PathVariable Long id) {
-        return ResponseEntity.ok("all ok");
+    public ResponseEntity<?> getTransport(@PathVariable Long id) {
+        Optional<Transport> transport = service.get(id);
+
+        if (transport.isPresent())
+            return ResponseEntity.ok(transport.get());
+        else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

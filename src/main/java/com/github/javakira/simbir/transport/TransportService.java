@@ -3,6 +3,8 @@ package com.github.javakira.simbir.transport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class TransportService {
@@ -23,5 +25,9 @@ public class TransportService {
                 .dayPrice(request.getDayPrice())
                 .build();
         repository.save(transport);
+    }
+
+    public Optional<Transport> get(Long id) {
+        return repository.findById(id);
     }
 }
