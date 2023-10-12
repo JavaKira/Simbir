@@ -9,7 +9,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/Rent")
 public class RentController {
-    //todo добавить в вайтлист, тк доступен всем
     @GetMapping("/Transport")
     public ResponseEntity<Transport> search(@RequestBody RentSearchParams params) {
         return ResponseEntity.ok(null);
