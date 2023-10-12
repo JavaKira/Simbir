@@ -16,6 +16,8 @@ public class Transport {
     @GeneratedValue
     private Long id;
     @Column(nullable = false)
+    private String ownerUsername;
+    @Column(nullable = false)
     private boolean canBeRented;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

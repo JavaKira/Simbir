@@ -10,9 +10,10 @@ import java.util.Optional;
 public class TransportService {
     private final TransportRepository repository;
 
-    public void addNew(TransportAddRequest request) {
+    public void addNew(TransportAddRequest request, String ownerUsername) {
         Transport transport = Transport
                 .builder()
+                .ownerUsername(ownerUsername)
                 .canBeRented(request.isCanBeRented())
                 .transportType(request.getTransportType())
                 .model(request.getModel())
@@ -27,11 +28,17 @@ public class TransportService {
         repository.save(transport);
     }
 
+    public void remove(Transport transport) {
+        repository.delete(transport);
+    }
+
     public Optional<Transport> get(Long id) {
         return repository.findById(id);
     }
 
     public void update(Long id, TransportUpdateRequest request) {
+        //todo в методе контролера мы уже получали транспорт по id
+        //todo вообще бы вывод ошибок сделать с кайфом было бы
         Optional<Transport> optional = get(id);
         if (optional.isEmpty())
             return;
@@ -40,6 +47,7 @@ public class TransportService {
         Transport transport = Transport
                 .builder()
                 .id(id)
+                .ownerUsername(oldTransport.getOwnerUsername())
                 .canBeRented(request.isCanBeRented())
                 .transportType(oldTransport.getTransportType())
                 .model(request.getModel())
