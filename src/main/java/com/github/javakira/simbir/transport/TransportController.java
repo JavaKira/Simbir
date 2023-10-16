@@ -21,8 +21,8 @@ public class TransportController {
         //todo если запрос сделан неверно, то все по пизде идёт
         Optional<String> jwt = jwtService.token(request);
         if (jwt.isPresent()) {
-            String username = jwtService.extractLogin(jwt.get());
-            service.addNew(transportAddRequest, username);
+            Long id = jwtService.extractId(jwt.get());
+            service.addNew(transportAddRequest, id);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -45,8 +45,8 @@ public class TransportController {
             Optional<String> jwt = jwtService.token(request);
             if (jwt.isPresent()) {
                 Transport transport = optional.get();
-                String username = jwtService.extractLogin(jwt.get());
-                if (username.equals(transport.getOwnerUsername())) {
+                Long userId = jwtService.extractId(jwt.get());
+                if (userId.equals(transport.getOwnerId())) {
                     service.remove(optional.get());
                     return new ResponseEntity<>(HttpStatus.OK);
                 }
@@ -63,8 +63,8 @@ public class TransportController {
             Optional<String> jwt = jwtService.token(request);
             if (jwt.isPresent()) {
                 Transport transport = optional.get();
-                String username = jwtService.extractLogin(jwt.get());
-                if (username.equals(transport.getOwnerUsername())) {
+                Long userId = jwtService.extractId(jwt.get());
+                if (id.equals(transport.getOwnerId())) {
                     service.update(id, transportUpdateRequest);
                     return new ResponseEntity<>(HttpStatus.OK);
                 }

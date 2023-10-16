@@ -16,7 +16,7 @@ public class Transport {
     @GeneratedValue
     private Long id;
     @Column(nullable = false)
-    private String ownerUsername; //todo такой момент, что пользователь может просто поменять имя, тогда он потеряет всё в пизду
+    private Long ownerId;
     @Column(nullable = false)
     private boolean canBeRented;
     @Column(nullable = false)

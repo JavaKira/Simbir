@@ -1,5 +1,6 @@
 package com.github.javakira.simbir.jwt;
 
+import com.github.javakira.simbir.account.Account;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,6 +23,10 @@ public class JwtService {
 
     public String extractLogin(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public Long extractId(String token) {
+        return Long.valueOf(extractClaim(token, Claims::getId));
     }
 
     public Optional<String> token(HttpServletRequest request) {
@@ -53,14 +58,15 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(Account account) {
+        return generateToken(new HashMap<>(), account);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extraClaims, Account account) {
         return Jwts.builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setId(String.valueOf(account.getId()))
+                .setSubject(account.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 10000000)) //todo move to app.prop
                 .signWith(getSingInKey(), SignatureAlgorithm.HS256)

@@ -10,10 +10,10 @@ import java.util.Optional;
 public class TransportService {
     private final TransportRepository repository;
 
-    public void addNew(TransportAddRequest request, String ownerUsername) {
+    public void addNew(TransportAddRequest request, Long ownerId) {
         Transport transport = Transport
                 .builder()
-                .ownerUsername(ownerUsername)
+                .ownerId(ownerId)
                 .canBeRented(request.isCanBeRented())
                 .transportType(request.getTransportType())
                 .model(request.getModel())
@@ -47,7 +47,7 @@ public class TransportService {
         Transport transport = Transport
                 .builder()
                 .id(id)
-                .ownerUsername(oldTransport.getOwnerUsername())
+                .ownerId(oldTransport.getOwnerId())
                 .canBeRented(request.isCanBeRented())
                 .transportType(oldTransport.getTransportType())
                 .model(request.getModel())

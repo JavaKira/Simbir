@@ -1,6 +1,9 @@
 package com.github.javakira.simbir.rent;
 
+import com.github.javakira.simbir.account.Account;
+import com.github.javakira.simbir.jwt.JwtService;
 import com.github.javakira.simbir.transport.Transport;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import java.util.Optional;
 @RequestMapping("/api/Rent")
 public class RentController {
     private final RentService service;
+    private final JwtService jwtService;
 
     //todo написать алгоритм поиска
     @GetMapping("/Transport")
@@ -42,8 +46,17 @@ public class RentController {
     }
     //todo Только авторизованные пользователи, нельзя брать в аренду собственный транспорт
     @PostMapping("/New/{transportId}")
-    public ResponseEntity<?> rent(@PathVariable Long transportId, @RequestBody NewRentRequest request) {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> rent(@PathVariable Long transportId, @RequestBody NewRentRequest newRentRequest, HttpServletRequest request) {
+        try {
+            Optional<String> jwt = jwtService.token(request);
+            if (jwt.isPresent()) {
+                Long userId = jwtService.extractId(jwt.get());
+                return ResponseEntity.ok(service.rent(newRentRequest.getRentType(), transportId, userId));
+            } else
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e);
+        }
     }
 
     //todo ограничения: только человек который создавал эту аренду. У Rent должен быть Account owner
