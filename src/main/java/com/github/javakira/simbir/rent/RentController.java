@@ -3,6 +3,8 @@ package com.github.javakira.simbir.rent;
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.jwt.JwtService;
 import com.github.javakira.simbir.transport.Transport;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,11 +22,14 @@ public class RentController {
     private final JwtService jwtService;
 
     //todo написать алгоритм поиска
+    @Operation(summary = "Get available transport by params")
     @GetMapping("/Transport")
     public ResponseEntity<List<Transport>> search(@RequestBody RentSearchParams params) {
         return ResponseEntity.ok(null);
     }
     //todo ограничения: Только арендатор и владелец транспорта
+    @Operation(summary = "Get info about rent by id")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("{rentId}")
     public ResponseEntity<?> rentInfo(@PathVariable Long rentId) {
         Optional<Rent> optionalRent = service.get(rentId);
@@ -34,17 +39,23 @@ public class RentController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     //todo добавить в Account историю аренд
+    @Operation(summary = "Get history of current user")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/MyHistory")
     public ResponseEntity<List<Rent>> rentHistory() {
         return ResponseEntity.ok(null);
     }
     //todo граничения: Только владелец этого транспорта
     //todo добавить в Transport историю аренд
+    @Operation(summary = "Get rent history of transport by transport id")
+    @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")
     public ResponseEntity<?> transportHistory(@PathVariable Long transportId) {
         return ResponseEntity.ok(null);
     }
     //todo Только авторизованные пользователи, нельзя брать в аренду собственный транспорт
+    @Operation(summary = "Add new rent for current user")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/New/{transportId}")
     public ResponseEntity<?> rent(@PathVariable Long transportId, @RequestBody NewRentRequest newRentRequest, HttpServletRequest request) {
         try {
@@ -60,6 +71,8 @@ public class RentController {
     }
 
     //todo ограничения: только человек который создавал эту аренду. У Rent должен быть Account owner
+    @Operation(summary = "End rent by rent id")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/End/{rentId}")
     public ResponseEntity<?> end(@PathVariable Long rentId, @RequestBody RentEndRequest request) {
         return ResponseEntity.ok(null);
