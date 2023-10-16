@@ -1,24 +1,33 @@
 package com.github.javakira.simbir.rent;
 
 import com.github.javakira.simbir.transport.Transport;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/Rent")
 public class RentController {
+    private final RentService service;
+
     //todo написать алгоритм поиска
     @GetMapping("/Transport")
-    public ResponseEntity<Transport> search(@RequestBody RentSearchParams params) {
+    public ResponseEntity<List<Transport>> search(@RequestBody RentSearchParams params) {
         return ResponseEntity.ok(null);
     }
     //todo ограничения: Только арендатор и владелец транспорта
-    //todo написать класс Rent и сделать его репозиторий. у Rent должен быть RentType и тд фигня
     @GetMapping("{rentId}")
-    public ResponseEntity<Rent> rentInfo(@PathVariable Long rentId) {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> rentInfo(@PathVariable Long rentId) {
+        Optional<Rent> optionalRent = service.get(rentId);
+        if (optionalRent.isPresent()) {
+            return ResponseEntity.ok(optionalRent.get());
+        } else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     //todo добавить в Account историю аренд
     @GetMapping("/MyHistory")
