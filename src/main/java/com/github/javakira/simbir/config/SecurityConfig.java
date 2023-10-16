@@ -4,6 +4,7 @@ import com.github.javakira.simbir.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,7 +26,22 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
                     authorizationManagerRequestMatcherRegistry
-                            .requestMatchers("/api/Account/SingIn", "api/Account/SingUp", "api/Transport/", "api/Rent/Transport")
+                            .requestMatchers(
+                                    "/api/Account/SingIn",
+                                    "api/Account/SingUp",
+                                    "api/Rent/Transport",
+                                    "/v3/api-docs",
+                                    "/v3/api-docs/**",
+                                    "/configuration/ui",
+                                    "/swagger-resources/**",
+                                    "/configuration/security",
+                                    "/swagger-ui/**",
+                                    "/webjars/**")
+                            .permitAll()
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    "api/Transport/**"
+                            )
                             .permitAll()
                             .anyRequest()
                             .authenticated();
