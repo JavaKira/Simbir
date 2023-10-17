@@ -1,6 +1,5 @@
 package com.github.javakira.simbir.rent;
 
-import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class RentService {
         if (transport.isEmpty())
             throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(transportId));
 
-        //todo использование ownerUsername
         if (transport.get().getOwnerId().equals(accountId))
             throw new IllegalArgumentException("Trying to rent own transport");
 
@@ -35,5 +33,20 @@ public class RentService {
                 .build();
         repository.save(rent);
         return rent;
+    }
+
+    public void end(Long rentId, RentEndRequest rentEndRequest, Long userId) {
+        Optional<Rent> rent = repository.findById(rentId);
+        if (rent.isEmpty())
+            throw new IllegalArgumentException("Rent with id %d doesnt exist".formatted(rentId));
+
+        if (!rent.get().getOwnerId().equals(userId))
+            throw new IllegalArgumentException("Only owner can end rent");
+
+        Transport transport = transportRepository.findById(rent.get().getTransportId()).get();
+        transport.setLatitude(rentEndRequest.getLat());
+        transport.setLongitude(rentEndRequest.getLongitude());
+        transportRepository.save(transport);
+        repository.delete(rent.get());
     }
 }

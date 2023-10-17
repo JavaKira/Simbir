@@ -66,15 +66,25 @@ public class RentController {
             } else
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    //todo ограничения: только человек который создавал эту аренду. У Rent должен быть Account owner
+    //todo ограничения: только человек который создавал эту аренду
     @Operation(summary = "End rent by rent id")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/End/{rentId}")
-    public ResponseEntity<?> end(@PathVariable Long rentId, @RequestBody RentEndRequest request) {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> end(@PathVariable Long rentId, @RequestBody RentEndRequest rentEndRequest, HttpServletRequest request) {
+        try {
+            Optional<String> jwt = jwtService.token(request);
+            if (jwt.isPresent()) {
+                Long userId = jwtService.extractId(jwt.get());
+                service.end(rentId, rentEndRequest, userId);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
