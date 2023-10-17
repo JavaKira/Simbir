@@ -1,5 +1,7 @@
 package com.github.javakira.simbir.rent;
 
+import com.github.javakira.simbir.account.Account;
+import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import java.util.Optional;
 public class RentService {
     private final RentRepository repository;
     private final TransportRepository transportRepository;
+    private final AccountRepository accountRepository;
 
     public Optional<Rent> get(Long id) {
         return repository.findById(id);
@@ -27,6 +30,14 @@ public class RentService {
             throw new IllegalArgumentException("Only owner of transport %d can get history");
 
         return transport.get().getRentHistory();
+    }
+
+    public List<Rent> accountHistory(Long userId) {
+        Optional<Account> account = accountRepository.findById(userId);
+        if (account.isEmpty())
+            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(userId));
+
+        return account.get().getRentHistory();
     }
 
 
@@ -58,12 +69,15 @@ public class RentService {
         if (!rent.get().getOwnerId().equals(userId))
             throw new IllegalArgumentException("Only rent owner can end rent");
 
+        Account account = accountRepository.findById(userId).get();
         Transport transport = transportRepository.findById(rent.get().getTransportId()).get();
         transport.setLatitude(rentEndRequest.getLat());
         transport.setLongitude(rentEndRequest.getLongitude());
         transport.getRentHistory().add(rent.get());
+        account.getRentHistory().add(rent.get());
         rent.get().setRentState(Rent.RentState.closed);
         transportRepository.save(transport);
         repository.save(rent.get());
+        accountRepository.save(account);
     }
 }

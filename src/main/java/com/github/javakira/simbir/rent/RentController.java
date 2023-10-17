@@ -38,12 +38,21 @@ public class RentController {
         } else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-    //todo добавить в Account историю аренд
+
     @Operation(summary = "Get history of current user")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/MyHistory")
-    public ResponseEntity<List<Rent>> rentHistory() {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> rentHistory(HttpServletRequest request) {
+        try {
+            Optional<String> jwt = jwtService.token(request);
+            if (jwt.isPresent()) {
+                Long userId = jwtService.extractId(jwt.get());
+                return ResponseEntity.ok(service.accountHistory(userId));
+            } else
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @Operation(summary = "Get rent history of transport by transport id")

@@ -1,5 +1,6 @@
 package com.github.javakira.simbir.account;
 
+import com.github.javakira.simbir.rent.Rent;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,8 @@ public class Account implements UserDetails {
     @Id
     @GeneratedValue
     private Long id;
+    @OneToMany
+    private List<Rent> rentHistory;
     private String username;
     private String password;
 
