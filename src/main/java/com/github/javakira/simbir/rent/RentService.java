@@ -69,13 +69,16 @@ public class RentService {
         if (!rent.get().getOwnerId().equals(userId))
             throw new IllegalArgumentException("Only rent owner can end rent");
 
+        if (rent.get().getRentState() == Rent.RentState.ended)
+            throw new IllegalStateException("Rent already ended");
+
         Account account = accountRepository.findById(userId).get();
         Transport transport = transportRepository.findById(rent.get().getTransportId()).get();
         transport.setLatitude(rentEndRequest.getLat());
         transport.setLongitude(rentEndRequest.getLongitude());
         transport.getRentHistory().add(rent.get());
         account.getRentHistory().add(rent.get());
-        rent.get().setRentState(Rent.RentState.closed);
+        rent.get().setRentState(Rent.RentState.ended);
         transportRepository.save(transport);
         repository.save(rent.get());
         accountRepository.save(account);

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Rent {
     enum RentState {
-        opened, closed
+        opened, ended
     }
     //todo нужно ещё время начала аренды добавить чтобы расчитывать время аренды и снимать деньги
     @Id
