@@ -1,10 +1,13 @@
 package com.github.javakira.simbir.transport;
 
+import com.github.javakira.simbir.rent.Rent;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -17,6 +20,8 @@ public class Transport {
     private Long id;
     @Column(nullable = false)
     private Long ownerId;
+    @OneToMany
+    List<Rent> rentHistory;
     @Column(nullable = false)
     private boolean canBeRented;
     @Column(nullable = false)

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService service;
 
+    //todo можно добавить дату регестраций и другой шлак чтобы не так скучно выглядело
     @Operation(summary = "Get data of current user")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping(value = "/Me", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -27,7 +28,7 @@ public class AccountController {
         return ResponseEntity.ok(service.singIn(request));
     }
 
-    //Нельзя создать аккаунт с существующим username
+    //todo Нельзя создать аккаунт с существующим username
     @Operation(summary = "Register new account")
     @PostMapping(value = "/SingUp", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthResponse> singUp(@RequestBody RegisterRequest request) {

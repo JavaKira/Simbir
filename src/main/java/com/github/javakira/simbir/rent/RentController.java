@@ -45,15 +45,23 @@ public class RentController {
     public ResponseEntity<List<Rent>> rentHistory() {
         return ResponseEntity.ok(null);
     }
-    //todo граничения: Только владелец этого транспорта
-    //todo добавить в Transport историю аренд
+
     @Operation(summary = "Get rent history of transport by transport id")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")
-    public ResponseEntity<?> transportHistory(@PathVariable Long transportId) {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {
+        try {
+            Optional<String> jwt = jwtService.token(request);
+            if (jwt.isPresent()) {
+                Long userId = jwtService.extractId(jwt.get());
+                return ResponseEntity.ok(service.transportHistory(transportId, userId));
+            } else
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
-    //todo Только авторизованные пользователи, нельзя брать в аренду собственный транспорт
+
     @Operation(summary = "Add new rent for current user")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/New/{transportId}")
@@ -70,7 +78,6 @@ public class RentController {
         }
     }
 
-    //todo ограничения: только человек который создавал эту аренду
     @Operation(summary = "End rent by rent id")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/End/{rentId}")

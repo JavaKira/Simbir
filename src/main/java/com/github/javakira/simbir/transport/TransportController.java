@@ -43,6 +43,7 @@ public class TransportController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    //todo refactor
     @Operation(summary = "Delete transport by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")

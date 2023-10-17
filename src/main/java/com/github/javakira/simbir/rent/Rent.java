@@ -12,10 +12,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Rent {
+    enum RentState {
+        opened, closed
+    }
     //todo нужно ещё время начала аренды добавить чтобы расчитывать время аренды и снимать деньги
     @Id
     @GeneratedValue
     private Long id;
+    @Enumerated(EnumType.STRING)
+    private RentState rentState = RentState.opened;
     @Enumerated(EnumType.STRING)
     private RentType rentType;
     private Long ownerId;
