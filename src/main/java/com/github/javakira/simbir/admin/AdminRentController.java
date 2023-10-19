@@ -24,14 +24,13 @@ import java.util.function.Function;
 @RequestMapping("/api/Admin")
 public class AdminRentController {
     private final AdminRentService service;
-    private final JwtService jwtService;
-    private final AccountRepository accountRepository;
+    private final AdminService adminService;
 
     @Operation(summary = "Get rent data")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/Rent/{rentId}")
     public ResponseEntity<?> rentInfo(@PathVariable Long rentId, HttpServletRequest request) {
-        return checkAdmin(request, userId -> {
+        return adminService.checkAdmin(request, userId -> {
             Optional<Rent> rentOptional = service.getRent(rentId);
             if (rentOptional.isEmpty())
                 return ResponseEntity.badRequest().body("Rent with id %d doesnt exist".formatted(rentId));
@@ -44,32 +43,13 @@ public class AdminRentController {
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/UserHistory/{userId}")
     public ResponseEntity<?> userHistory(@PathVariable Long userId, HttpServletRequest request) {
-        return checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.userHistory(userId)));
+        return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.userHistory(userId)));
     }
 
     @Operation(summary = "Get transport history of rents by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")
     public ResponseEntity<?> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {
-        return checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.transportHistory(transportId)));
-    }
-
-    public ResponseEntity<?> checkAdmin(HttpServletRequest request, Function<Long, ResponseEntity<?>> adminConsumer) {
-        Optional<String> jwt = jwtService.token(request);
-        if (jwt.isPresent()) {
-            Long userId = jwtService.extractId(jwt.get());
-            //Role role = jwtService.extractRole(jwt.get());
-            Role role = accountRepository.findById(userId).get().getRole();
-            if (role != Role.admin)
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admin can use this endpoint");
-
-            try {
-                return adminConsumer.apply(userId);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.transportHistory(transportId)));
     }
 }
