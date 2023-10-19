@@ -62,4 +62,14 @@ public class AdminAccountController {
             return new ResponseEntity<>(HttpStatus.OK);
         });
     }
+
+    @Operation(summary = "Delete user with id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @DeleteMapping("/Account/{id}")
+    public ResponseEntity<?> deleteAccount(HttpServletRequest request, @PathVariable Long id) {
+        return adminService.checkAdmin(request, userId -> {
+            service.deleteAccount(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        });
+    }
 }

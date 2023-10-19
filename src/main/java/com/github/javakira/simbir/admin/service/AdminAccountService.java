@@ -59,4 +59,12 @@ public class AdminAccountService {
                 .build();
         accountRepository.save(account);
     }
+
+    public void deleteAccount(Long id) {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if (accountOptional.isEmpty())
+            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
+
+        accountRepository.delete(accountOptional.get());
+    }
 }
