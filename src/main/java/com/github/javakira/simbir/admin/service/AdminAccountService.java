@@ -45,7 +45,10 @@ public class AdminAccountService {
         Optional<Account> accountOptional = accountRepository.findByUsername(request.getUsername());
         if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id)) {
             throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
-        } else if (accountOptional.isEmpty())
+        }
+
+        accountOptional = accountRepository.findById(id);
+        if (accountOptional.isEmpty())
             throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
 
         Account account = Account
