@@ -2,6 +2,7 @@ package com.github.javakira.simbir.admin;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
+import com.github.javakira.simbir.account.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +22,19 @@ public class AdminAccountService {
 
     public Optional<Account> accountInfo(Long id) {
         return accountRepository.findById(id);
+    }
+
+    public void registerAccount(RegisterByAdminRequest request) {
+        if (accountRepository.findByUsername(request.getUsername()).isPresent())
+            throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
+
+        Account account = Account
+                .builder()
+                .role(request.isAdmin() ? Role.admin : Role.user)
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .money((long) request.getBalance()) //todo мб баланс сделать в типе double
+                .build();
+        accountRepository.save(account);
     }
 }

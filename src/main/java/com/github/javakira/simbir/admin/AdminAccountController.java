@@ -1,11 +1,11 @@
 package com.github.javakira.simbir.admin;
 
 import com.github.javakira.simbir.account.Account;
-import com.github.javakira.simbir.rent.Rent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +35,16 @@ public class AdminAccountController {
                 return ResponseEntity.badRequest().body("Account with id %d doesnt exist".formatted(id));
 
             return ResponseEntity.ok().body(accountOptional.get());
+        });
+    }
+
+    @Operation(summary = "Create new account")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PostMapping("/Account")
+    public ResponseEntity<?> registerAccount(HttpServletRequest request, @RequestBody RegisterByAdminRequest registerByAdminRequest) {
+        return adminService.checkAdmin(request, userId -> {
+            service.registerAccount(registerByAdminRequest);
+            return new ResponseEntity<>(HttpStatus.OK);
         });
     }
 }
