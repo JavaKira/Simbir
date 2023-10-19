@@ -5,6 +5,7 @@ import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
 import com.github.javakira.simbir.admin.schema.GetAccountsRequest;
 import com.github.javakira.simbir.admin.schema.RegisterByAdminRequest;
+import com.github.javakira.simbir.admin.schema.UpdateByAdminRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,25 @@ public class AdminAccountService {
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .money((long) request.getBalance()) //todo мб баланс сделать в типе double
+                .build();
+        accountRepository.save(account);
+    }
+
+    public void updateAccount(Long id, UpdateByAdminRequest request) {
+        Optional<Account> accountOptional = accountRepository.findByUsername(request.getUsername());
+        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
+        } else if (accountOptional.isEmpty())
+            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
+
+        Account account = Account
+                .builder()
+                .id(id)
+                .role(request.isAdmin() ? Role.admin : Role.user)
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .money((long) request.getBalance()) //todo мб баланс сделать в типе double
+                .rentHistory(accountOptional.get().getRentHistory())
                 .build();
         accountRepository.save(account);
     }

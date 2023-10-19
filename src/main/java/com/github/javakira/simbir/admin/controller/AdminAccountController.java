@@ -1,6 +1,7 @@
 package com.github.javakira.simbir.admin.controller;
 
 import com.github.javakira.simbir.account.Account;
+import com.github.javakira.simbir.admin.schema.UpdateByAdminRequest;
 import com.github.javakira.simbir.admin.service.AdminAccountService;
 import com.github.javakira.simbir.admin.service.AdminService;
 import com.github.javakira.simbir.admin.schema.GetAccountsRequest;
@@ -48,6 +49,16 @@ public class AdminAccountController {
     public ResponseEntity<?> registerAccount(HttpServletRequest request, @RequestBody RegisterByAdminRequest registerByAdminRequest) {
         return adminService.checkAdmin(request, userId -> {
             service.registerAccount(registerByAdminRequest);
+            return new ResponseEntity<>(HttpStatus.OK);
+        });
+    }
+
+    @Operation(summary = "Update info about user by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PutMapping("/Account/{id}")
+    public ResponseEntity<?> updateAccount(HttpServletRequest request, @PathVariable Long id, @RequestBody UpdateByAdminRequest updateByAdminRequest) {
+        return adminService.checkAdmin(request, userId -> {
+            service.updateAccount(id, updateByAdminRequest);
             return new ResponseEntity<>(HttpStatus.OK);
         });
     }
