@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @Entity
@@ -15,14 +17,18 @@ public class Rent {
     enum RentState {
         opened, ended
     }
-    //todo нужно ещё время начала аренды добавить чтобы расчитывать время аренды и снимать деньги
+
     @Id
     @GeneratedValue
     private Long id;
+    private Long ownerId;
+    private Long transportId;
     @Enumerated(EnumType.STRING)
     private RentState rentState = RentState.opened;
     @Enumerated(EnumType.STRING)
     private RentType rentType;
-    private Long ownerId;
-    private Long transportId;
+    private LocalDateTime timeStart;
+    private LocalDateTime timeEnd;
+    private double priceOfUnit;
+    private Double finalPrice;
 }
