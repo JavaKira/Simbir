@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.admin;
+package com.github.javakira.simbir.admin.schema;
 
 import com.github.javakira.simbir.rent.RentType;
 import lombok.*;

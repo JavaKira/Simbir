@@ -1,8 +1,10 @@
-package com.github.javakira.simbir.admin;
+package com.github.javakira.simbir.admin.service;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
+import com.github.javakira.simbir.admin.schema.GetAccountsRequest;
+import com.github.javakira.simbir.admin.schema.RegisterByAdminRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

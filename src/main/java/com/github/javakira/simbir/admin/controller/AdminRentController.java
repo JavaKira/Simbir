@@ -1,15 +1,12 @@
-package com.github.javakira.simbir.admin;
+package com.github.javakira.simbir.admin.controller;
 
-import com.github.javakira.simbir.account.Account;
-import com.github.javakira.simbir.account.AccountRepository;
-import com.github.javakira.simbir.account.Role;
-import com.github.javakira.simbir.jwt.JwtService;
+import com.github.javakira.simbir.admin.service.AdminRentService;
+import com.github.javakira.simbir.admin.service.AdminService;
 import com.github.javakira.simbir.rent.Rent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 @RestController
 @RequiredArgsConstructor

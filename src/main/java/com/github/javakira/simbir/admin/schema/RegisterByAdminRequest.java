@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.admin;
+package com.github.javakira.simbir.admin.schema;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
