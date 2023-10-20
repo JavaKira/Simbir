@@ -2,6 +2,7 @@ package com.github.javakira.simbir.admin.controller;
 
 import com.github.javakira.simbir.admin.schema.GetTransportsRequest;
 import com.github.javakira.simbir.admin.schema.RegisterTransportByAdminRequest;
+import com.github.javakira.simbir.admin.schema.UpdateTransportByAdminRequest;
 import com.github.javakira.simbir.admin.service.AdminService;
 import com.github.javakira.simbir.admin.service.AdminTransportService;
 import com.github.javakira.simbir.transport.Transport;
@@ -49,5 +50,16 @@ public class AdminTransportController {
             @RequestBody RegisterTransportByAdminRequest registerTransportByAdminRequest
     ) {
         return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.registerTransport(registerTransportByAdminRequest)));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Edit transport by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<?> updateTransport(
+            HttpServletRequest request,
+            @RequestBody UpdateTransportByAdminRequest updateTransportByAdminRequest,
+            @PathVariable Long id
+    ) {
+        return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.updateTransport(id, updateTransportByAdminRequest)));
     }
 }
