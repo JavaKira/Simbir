@@ -22,8 +22,8 @@ public class Rent {
     }
 
     public enum RentType {
-        Minutes(rent -> ChronoUnit.MINUTES.between(rent.timeStart, rent.timeEnd) * rent.priceOfUnit),
-        Days(rent -> ChronoUnit.DAYS.between(rent.timeStart, rent.timeEnd) * rent.priceOfUnit);
+        Minutes(rent -> ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd) / 60.0 * rent.priceOfUnit),
+        Days(rent -> ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd) / 86400.0 * rent.priceOfUnit);
 
         final Function<Rent, Double> price;
 

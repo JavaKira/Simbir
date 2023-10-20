@@ -45,6 +45,7 @@ public class AdminRentService {
     public Rent newRent(NewRentAdminRequest request) {
         Rent rent = Rent
                 .builder()
+                .rentState(Rent.RentState.opened)
                 .transportId(request.getTransportId())
                 .timeEnd(LocalDateTime.parse(request.getTimeEnd()))
                 .timeStart(LocalDateTime.parse(request.getTimeStart()))
@@ -66,7 +67,7 @@ public class AdminRentService {
             throw new IllegalStateException("Rent already ended");
 
         Rent rent = rentOptional.get();
-        Account account = accountRepository.findById(rent.getId()).orElseThrow();
+        Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
         Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
         //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());

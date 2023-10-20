@@ -26,7 +26,7 @@ public class AdminTransportController {
     @GetMapping
     @Operation(summary = "Get list of all transport")
     @SecurityRequirement(name = "Bearer Authentication")
-    public ResponseEntity<?> transports(HttpServletRequest request, @RequestBody GetTransportsRequest getTransportsRequest) {
+    public ResponseEntity<?> transports(HttpServletRequest request, GetTransportsRequest getTransportsRequest) {
         return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.transports(getTransportsRequest)));
     }
 

@@ -100,7 +100,7 @@ public class RentController {
             } else
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.toString());
         }
     }
 }

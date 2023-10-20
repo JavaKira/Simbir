@@ -27,8 +27,8 @@ public class RentService {
         if (transport.isEmpty())
             throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(transportId));
 
-        if (transport.get().getOwnerId().equals(userId))
-            throw new IllegalArgumentException("Only owner of transport %d can get history");
+        if (!transport.get().getOwnerId().equals(userId))
+            throw new IllegalArgumentException("Only owner of transport %d can get rent history".formatted(transportId));
 
         return transport.get().getRentHistory();
     }
@@ -51,10 +51,20 @@ public class RentService {
         if (transport.get().getOwnerId().equals(accountId))
             throw new IllegalArgumentException("Trying to rent own transport");
 
+        double unitPrice = 0;
+        //todo добавить проверки
+        if (rentType == Rent.RentType.Minutes)
+            unitPrice = transport.get().getMinutePrice();
+        else if (rentType == Rent.RentType.Days)
+            unitPrice = transport.get().getDayPrice();
+
         Rent rent = Rent
                 .builder()
                 .rentType(rentType)
                 .ownerId(accountId)
+                .rentState(Rent.RentState.opened)
+                .timeStart(LocalDateTime.now())
+                .priceOfUnit(unitPrice)
                 .transportId(transportId)
                 .build();
         repository.save(rent);
@@ -74,7 +84,7 @@ public class RentService {
             throw new IllegalStateException("Rent already ended");
 
         Rent rent = rentOptional.get();
-        Account account = accountRepository.findById(rent.getId()).orElseThrow();
+        Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
         Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
         //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());
