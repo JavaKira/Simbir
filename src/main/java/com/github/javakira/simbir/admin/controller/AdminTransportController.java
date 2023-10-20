@@ -1,17 +1,18 @@
 package com.github.javakira.simbir.admin.controller;
 
 import com.github.javakira.simbir.admin.schema.GetTransportsRequest;
+import com.github.javakira.simbir.admin.schema.RegisterTransportByAdminRequest;
 import com.github.javakira.simbir.admin.service.AdminService;
 import com.github.javakira.simbir.admin.service.AdminTransportService;
+import com.github.javakira.simbir.transport.Transport;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,5 +26,28 @@ public class AdminTransportController {
     @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<?> transports(HttpServletRequest request, @RequestBody GetTransportsRequest getTransportsRequest) {
         return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.transports(getTransportsRequest)));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get info about transport by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<?> transportId(HttpServletRequest request, @PathVariable Long id) {
+        return adminService.checkAdmin(request, userId -> {
+            Optional<Transport> transportOptional = service.transportInfo(id);
+            if (transportOptional.isEmpty())
+                return ResponseEntity.badRequest().body("Transport with id %d doesnt exist".formatted(id));
+
+            return ResponseEntity.ok().body(transportOptional.get());
+        });
+    }
+
+    @PostMapping
+    @Operation(summary = "Create new transport")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<?> registerTransport(
+            HttpServletRequest request,
+            @RequestBody RegisterTransportByAdminRequest registerTransportByAdminRequest
+    ) {
+        return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.registerTransport(registerTransportByAdminRequest)));
     }
 }
