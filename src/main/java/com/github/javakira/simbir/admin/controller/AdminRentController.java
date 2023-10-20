@@ -1,5 +1,6 @@
 package com.github.javakira.simbir.admin.controller;
 
+import com.github.javakira.simbir.admin.schema.NewRentAdminRequest;
 import com.github.javakira.simbir.admin.service.AdminRentService;
 import com.github.javakira.simbir.admin.service.AdminService;
 import com.github.javakira.simbir.rent.Rent;
@@ -8,10 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -47,5 +45,12 @@ public class AdminRentController {
     @GetMapping("/TransportHistory/{transportId}")
     public ResponseEntity<?> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {
         return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.transportHistory(transportId)));
+    }
+
+    @Operation(summary = "Create new rent")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PostMapping("/Rent")
+    public ResponseEntity<?> newRent(HttpServletRequest request, NewRentAdminRequest newRentAdminRequest) {
+        return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.newRent(newRentAdminRequest)));
     }
 }

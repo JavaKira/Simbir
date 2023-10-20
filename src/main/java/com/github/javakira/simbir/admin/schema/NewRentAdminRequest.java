@@ -20,5 +20,5 @@ public class NewRentAdminRequest {
     private Double priceOfUnit;
     @NonNull
     private RentType rentType;
-    private Long finalPrice;
+    private Double finalPrice;
 }
