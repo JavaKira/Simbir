@@ -9,6 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -33,6 +35,9 @@ public class AccountService {
     }
 
     public AuthResponse singUp(RegisterRequest request) {
+        if (repository.findByUsername(request.getUsername()).isPresent())
+            throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
+
         Account account = Account.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
