@@ -3,6 +3,7 @@ package com.github.javakira.simbir.admin.service;
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.admin.schema.NewRentAdminRequest;
+import com.github.javakira.simbir.admin.schema.RentEndRequest;
 import com.github.javakira.simbir.rent.Rent;
 import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.transport.Transport;
@@ -54,5 +55,31 @@ public class AdminRentService {
                 .build();
         repository.save(rent);
         return rent;
+    }
+
+    public void endRent(Long id, RentEndRequest rentEndRequest) {
+        Optional<Rent> rentOptional = repository.findById(id);
+        if (rentOptional.isEmpty())
+            throw new IllegalArgumentException("Rent with id %d doesnt exist".formatted(id));
+
+        Rent rent = rentOptional.get();
+        Account account = accountRepository.findById(rent.getId()).orElseThrow();
+        Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
+        //Updating Transport location to rent end location
+        transport.setLongitude(rentEndRequest.getLongitude());
+        transport.setLatitude(rentEndRequest.getLat());
+        //Closing rent
+        rent.setRentState(Rent.RentState.ended);
+        rent.setTimeEnd(LocalDateTime.now());
+        rent.setFinalPrice(rent.getRentType().price(rent));
+        //Taking off money
+        account.setMoney(account.getMoney() - rent.getFinalPrice()); //todo стоит задуматься об длинной арифметике для счета денег
+        //Adding rent to rentHistory of account and transport
+        account.getRentHistory().add(rent);
+        transport.getRentHistory().add(rent);
+        //Saving entities to repositories
+        repository.save(rent);
+        accountRepository.save(account);
+        transportRepository.save(transport);
     }
 }

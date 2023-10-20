@@ -1,5 +1,6 @@
 package com.github.javakira.simbir.rent;
 
+import com.github.javakira.simbir.transport.Transport;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.function.Function;
 
 @Data
 @Builder
@@ -14,8 +17,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Rent {
-    enum RentState {
+    public enum RentState {
         opened, ended
+    }
+
+    public enum RentType {
+        Minutes(rent -> ChronoUnit.MINUTES.between(rent.timeStart, rent.timeEnd) * rent.priceOfUnit),
+        Days(rent -> ChronoUnit.DAYS.between(rent.timeStart, rent.timeEnd) * rent.priceOfUnit);
+
+        final Function<Rent, Double> price;
+
+        RentType(Function<Rent, Double> price) {
+            this.price = price;
+        }
+
+        public double price(Rent rent) {
+            return price.apply(rent);
+        }
     }
 
     @Id

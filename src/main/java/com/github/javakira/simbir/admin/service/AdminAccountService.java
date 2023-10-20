@@ -36,7 +36,7 @@ public class AdminAccountService {
                 .role(request.isAdmin() ? Role.admin : Role.user)
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .money((long) request.getBalance()) //todo мб баланс сделать в типе double
+                .money(request.getBalance())
                 .build();
         accountRepository.save(account);
     }
@@ -57,7 +57,7 @@ public class AdminAccountService {
                 .role(request.isAdmin() ? Role.admin : Role.user)
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .money((long) request.getBalance()) //todo мб баланс сделать в типе double
+                .money(request.getBalance())
                 .rentHistory(accountOptional.get().getRentHistory())
                 .build();
         accountRepository.save(account);

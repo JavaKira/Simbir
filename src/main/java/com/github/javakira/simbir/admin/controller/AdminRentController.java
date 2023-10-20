@@ -1,6 +1,7 @@
 package com.github.javakira.simbir.admin.controller;
 
 import com.github.javakira.simbir.admin.schema.NewRentAdminRequest;
+import com.github.javakira.simbir.admin.schema.RentEndRequest;
 import com.github.javakira.simbir.admin.service.AdminRentService;
 import com.github.javakira.simbir.admin.service.AdminService;
 import com.github.javakira.simbir.rent.Rent;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,5 +54,15 @@ public class AdminRentController {
     @PostMapping("/Rent")
     public ResponseEntity<?> newRent(HttpServletRequest request, NewRentAdminRequest newRentAdminRequest) {
         return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.newRent(newRentAdminRequest)));
+    }
+
+    @Operation(summary = "End rent by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PostMapping("/Rent/End/{id}")
+    public ResponseEntity<?> endRent(HttpServletRequest request, RentEndRequest rentEndRequest, @PathVariable Long id) {
+        return adminService.checkAdmin(request, currentUserId -> {
+            service.endRent(id, rentEndRequest);
+            return new ResponseEntity<>(HttpStatus.OK);
+        });
     }
 }

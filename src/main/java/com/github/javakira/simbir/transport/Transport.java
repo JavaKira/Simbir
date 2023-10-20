@@ -18,6 +18,7 @@ public class Transport {
     @Id
     @GeneratedValue
     private Long id;
+    //TODO НУЖНО РАЗОБРАТЬСЯ С NULLABLE И NONULLABLE
     @Column(nullable = false)
     private Long ownerId;
     @OneToMany

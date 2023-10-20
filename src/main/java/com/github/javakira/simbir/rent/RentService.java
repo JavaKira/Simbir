@@ -42,7 +42,7 @@ public class RentService {
 
 
     //todo ставить canBeRented на false. Если он и так false, то аренда невозможна
-    public Rent rent(RentType rentType, Long transportId, Long accountId) {
+    public Rent rent(Rent.RentType rentType, Long transportId, Long accountId) {
         Optional<Transport> transport = transportRepository.findById(transportId);
         if (transport.isEmpty())
             throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(transportId));

@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.rent;
+package com.github.javakira.simbir.admin.schema;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewRentRequest {
-    private Rent.RentType rentType;
+public class RentEndRequest {
+    private double lat;
+    private double longitude;
 }

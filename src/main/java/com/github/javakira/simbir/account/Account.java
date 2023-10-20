@@ -25,7 +25,7 @@ public class Account implements UserDetails {
     @OneToMany
     private List<Rent> rentHistory;
     @Column(nullable = false)
-    private long money;
+    private Double money;
     private String username;
     private String password;
 
