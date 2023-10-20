@@ -19,6 +19,21 @@ public class AccountService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
 
+    public AccountInfoResponse accountInfo(Long id) {
+        Optional<Account> accountOptional = repository.findById(id);
+        if (accountOptional.isEmpty())
+            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
+
+        Account account = accountOptional.get();
+        return AccountInfoResponse
+                .builder()
+                .id(account.getId())
+                .money(account.getMoney())
+                .role(account.getRole())
+                .username(account.getUsername())
+                .build();
+    }
+
     public AuthResponse singIn(AuthRequest request) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

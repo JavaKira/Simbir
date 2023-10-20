@@ -23,6 +23,7 @@ public class AdminAccountService {
         return accounts.subList(request.getStart(), Math.max(request.getStart() + request.getCount(), accounts.size())).stream().map(Account::getId).toList();
     }
 
+    //todo можно сделать также как в пакете account: AccountInfoResponse
     public Optional<Account> accountInfo(Long id) {
         return accountRepository.findById(id);
     }

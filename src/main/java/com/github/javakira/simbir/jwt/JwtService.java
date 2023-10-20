@@ -8,6 +8,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -92,5 +94,21 @@ public class JwtService {
     private Key getSingInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public ResponseEntity<?> accessUser(HttpServletRequest request, Function<Long, ResponseEntity<?>> userConsumer) {
+        Optional<String> jwt = token(request);
+        if (jwt.isPresent()) {
+            Long userId = extractId(jwt.get());
+
+            try {
+                return userConsumer.apply(userId);
+            } catch (Exception e) {
+                e.setStackTrace(null);
+                return ResponseEntity.badRequest().body(e);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 }

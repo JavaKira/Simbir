@@ -1,7 +1,9 @@
 package com.github.javakira.simbir.account;
 
+import com.github.javakira.simbir.jwt.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
@@ -14,14 +16,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/Account")
 public class AccountController {
     private final AccountService service;
+    private final JwtService jwtService;
 
-    //todo можно добавить дату регестраций и другой шлак чтобы не так скучно выглядело
-    //todo реализовать
     @Operation(summary = "Get data of current user")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping(value = "/Me", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String me() {
-        return "";
+    public ResponseEntity<?> me(HttpServletRequest request) {
+        return jwtService.accessUser(request, userId -> ResponseEntity.ok(service.accountInfo(userId)));
     }
 
     //todo вывод сообщений ошибок сюда тоже нужно
