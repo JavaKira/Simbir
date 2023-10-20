@@ -7,6 +7,7 @@ import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,25 +63,34 @@ public class RentService {
 
     //todo ставить canBeRented на true
     public void end(Long rentId, RentEndRequest rentEndRequest, Long userId) {
-        Optional<Rent> rent = repository.findById(rentId);
-        if (rent.isEmpty())
+        Optional<Rent> rentOptional = repository.findById(rentId);
+        if (rentOptional.isEmpty())
             throw new IllegalArgumentException("Rent with id %d doesnt exist".formatted(rentId));
 
-        if (!rent.get().getOwnerId().equals(userId))
+        if (!rentOptional.get().getOwnerId().equals(userId))
             throw new IllegalArgumentException("Only rent owner can end rent");
 
-        if (rent.get().getRentState() == Rent.RentState.ended)
+        if (rentOptional.get().getRentState() == Rent.RentState.ended)
             throw new IllegalStateException("Rent already ended");
 
-        Account account = accountRepository.findById(userId).get();
-        Transport transport = transportRepository.findById(rent.get().getTransportId()).get();
-        transport.setLatitude(rentEndRequest.getLat());
+        Rent rent = rentOptional.get();
+        Account account = accountRepository.findById(rent.getId()).orElseThrow();
+        Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
+        //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());
-        transport.getRentHistory().add(rent.get());
-        account.getRentHistory().add(rent.get());
-        rent.get().setRentState(Rent.RentState.ended);
-        transportRepository.save(transport);
-        repository.save(rent.get());
+        transport.setLatitude(rentEndRequest.getLat());
+        //Closing rent
+        rent.setRentState(Rent.RentState.ended);
+        rent.setTimeEnd(LocalDateTime.now());
+        rent.setFinalPrice(rent.getRentType().price(rent));
+        //Taking off money
+        account.setMoney(account.getMoney() - rent.getFinalPrice()); //todo стоит задуматься об длинной арифметике для счета денег
+        //Adding rent to rentHistory of account and transport
+        account.getRentHistory().add(rent);
+        transport.getRentHistory().add(rent);
+        //Saving entities to repositories
+        repository.save(rent);
         accountRepository.save(account);
+        transportRepository.save(transport);
     }
 }

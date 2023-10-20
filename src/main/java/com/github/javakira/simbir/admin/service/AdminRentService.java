@@ -62,6 +62,9 @@ public class AdminRentService {
         if (rentOptional.isEmpty())
             throw new IllegalArgumentException("Rent with id %d doesnt exist".formatted(id));
 
+        if (rentOptional.get().getRentState() == Rent.RentState.ended)
+            throw new IllegalStateException("Rent already ended");
+
         Rent rent = rentOptional.get();
         Account account = accountRepository.findById(rent.getId()).orElseThrow();
         Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
