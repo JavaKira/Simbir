@@ -78,4 +78,12 @@ public class AdminTransportService {
         repository.save(transport);
         return transport;
     }
+
+    public void deleteTransport(Long id) {
+        Optional<Transport> transport = repository.findById(id);
+        if (transport.isEmpty())
+            throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(id));
+
+        repository.delete(transport.get());
+    }
 }

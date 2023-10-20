@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,5 +62,18 @@ public class AdminTransportController {
             @PathVariable Long id
     ) {
         return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.updateTransport(id, updateTransportByAdminRequest)));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete transport by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    public ResponseEntity<?> deleteTransport(
+            HttpServletRequest request,
+            @PathVariable Long id
+    ) {
+        return adminService.checkAdmin(request, userId -> {
+            service.deleteTransport(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        });
     }
 }
