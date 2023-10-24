@@ -5,11 +5,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,20 +20,20 @@ public class AccountController {
 
     @Operation(summary = "Get data of current user")
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping(value = "/Me", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/Me")
     public ResponseEntity<?> me(HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> ResponseEntity.ok(service.accountInfo(userId)));
     }
 
     //todo вывод сообщений ошибок сюда тоже нужно
     @Operation(summary = "Get new jwt token")
-    @PostMapping(value = "/SingIn", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/SingIn")
     public ResponseEntity<AuthResponse> singIn(@RequestBody AuthRequest request) {
         return ResponseEntity.ok(service.singIn(request));
     }
 
     @Operation(summary = "Register new account")
-    @PostMapping(value = "/SingUp", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/SingUp")
     public ResponseEntity<?> singUp(@RequestBody RegisterRequest request) {
         try {
             return ResponseEntity.ok(service.singUp(request));
@@ -42,19 +42,23 @@ public class AccountController {
         }
     }
 
-    //todo реализовать singout
     @Operation(summary = "Logout from account")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PostMapping(value = "/SingOut", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String singOut() {
-        return "";
+    @PostMapping("/SingOut")
+    public ResponseEntity<?> singOut(HttpServletRequest request) {
+        Optional<String> token = jwtService.token(request);
+        service.singOut(token.orElseThrow());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     //todo
     @Operation(summary = "Update user data")
     @SecurityRequirement(name = "Bearer Authentication")
-    @PutMapping(value = "/Update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String update() {
-        return "";
+    @PutMapping("/Update")
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody UpdateRequest updateRequest) {
+        return jwtService.accessUser(request, userId -> {
+           service.update(userId, updateRequest);
+           return new ResponseEntity<>(HttpStatus.OK);
+        });
     }
 }

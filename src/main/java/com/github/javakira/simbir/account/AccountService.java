@@ -2,8 +2,6 @@ package com.github.javakira.simbir.account;
 
 import com.github.javakira.simbir.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -63,8 +61,22 @@ public class AccountService {
         return new AuthResponse(jwtToken);
     }
 
-    public void singOut(LogoutRequest request) {
-        String jwt = request.getToken();
+    public void update(Long id, UpdateRequest request) {
+        Optional<Account> accountOptional = repository.findByUsername(request.getUsername());
+        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
+        }
 
+        accountOptional = repository.findById(id);
+        if (accountOptional.isEmpty())
+            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
+
+        accountOptional.get().setUsername(request.getUsername());
+        accountOptional.get().setPassword(passwordEncoder.encode(request.getPassword()));
+        repository.save(accountOptional.get());
+    }
+
+    public void singOut(String token) {
+        jwtService.banToken(token);
     }
 }

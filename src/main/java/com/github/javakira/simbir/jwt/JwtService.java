@@ -8,6 +8,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,8 +22,11 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
     private static final String secret = "50861a2a1b08cd5f578facf25f0ad207831cafd0800ca9c761c7bf9b8e5510e3"; //todo remove from here
+
+    private final TokenBanListRepository tokenBanListRepository;
 
     public String extractLogin(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -54,7 +58,20 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public void banToken(String token) {
+        tokenBanListRepository.save(new BannedToken(token));
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails) {
+        Optional<BannedToken> bannedToken = tokenBanListRepository.findById(token);
+        if (bannedToken.isPresent()) {
+            if (isTokenExpired(token))
+                tokenBanListRepository.delete(bannedToken.get());
+
+            return false;
+        }
+
+
         final String username = extractLogin(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
@@ -104,8 +121,7 @@ public class JwtService {
             try {
                 return userConsumer.apply(userId);
             } catch (Exception e) {
-                e.setStackTrace(null);
-                return ResponseEntity.badRequest().body(e);
+                return ResponseEntity.badRequest().body(e.toString());
             }
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
