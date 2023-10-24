@@ -7,6 +7,8 @@ import com.github.javakira.simbir.admin.schema.GetAccountsRequest;
 import com.github.javakira.simbir.admin.schema.RegisterByAdminRequest;
 import com.github.javakira.simbir.admin.schema.UpdateByAdminRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,13 +26,21 @@ public class AdminAccountService {
     }
 
     //todo можно сделать также как в пакете account: AccountInfoResponse
-    public Optional<Account> accountInfo(Long id) {
-        return accountRepository.findById(id);
+    public ResponseEntity<?> accountInfo(long id) {
+        Optional<Account> accountOptional = accountRepository.findById(id);
+        if (accountOptional.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Account with id %d doesnt exist".formatted(id));
+
+        return ResponseEntity.ok(accountOptional.get());
     }
 
-    public void registerAccount(RegisterByAdminRequest request) {
+    public ResponseEntity<?> registerAccount(RegisterByAdminRequest request) {
         if (accountRepository.findByUsername(request.getUsername()).isPresent())
-            throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Username '%s' is already in use".formatted(request.getUsername()));
 
         Account account = Account
                 .builder()
@@ -40,17 +50,22 @@ public class AdminAccountService {
                 .money(request.getBalance())
                 .build();
         accountRepository.save(account);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public void updateAccount(Long id, UpdateByAdminRequest request) {
+    public ResponseEntity<?> updateAccount(long id, UpdateByAdminRequest request) {
         Optional<Account> accountOptional = accountRepository.findByUsername(request.getUsername());
-        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id)) {
-            throw new IllegalArgumentException("Username '%s' is already in use".formatted(request.getUsername()));
-        }
+        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id))
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Username '%s' is already in use".formatted(request.getUsername()));
+
 
         accountOptional = accountRepository.findById(id);
         if (accountOptional.isEmpty())
-            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Account with id %d doesnt exist".formatted(id));
 
         Account account = Account
                 .builder()
@@ -62,13 +77,17 @@ public class AdminAccountService {
                 .rentHistory(accountOptional.get().getRentHistory())
                 .build();
         accountRepository.save(account);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public void deleteAccount(Long id) {
+    public ResponseEntity<?> deleteAccount(long id) {
         Optional<Account> accountOptional = accountRepository.findById(id);
         if (accountOptional.isEmpty())
-            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Account with id %d doesnt exist".formatted(id));
 
         accountRepository.delete(accountOptional.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

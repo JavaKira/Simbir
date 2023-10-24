@@ -1,6 +1,5 @@
 package com.github.javakira.simbir.admin.controller;
 
-import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.admin.schema.UpdateByAdminRequest;
 import com.github.javakira.simbir.admin.service.AdminAccountService;
 import com.github.javakira.simbir.admin.service.AdminService;
@@ -10,11 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,43 +29,28 @@ public class AdminAccountController {
     @Operation(summary = "Get info about user by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/Account/{id}")
-    public ResponseEntity<?> accountInfo(HttpServletRequest request, @PathVariable Long id) {
-        return adminService.checkAdmin(request, userId -> {
-            Optional<Account> accountOptional = service.accountInfo(id);
-            if (accountOptional.isEmpty())
-                return ResponseEntity.badRequest().body("Account with id %d doesnt exist".formatted(id));
-
-            return ResponseEntity.ok().body(accountOptional.get());
-        });
+    public ResponseEntity<?> accountInfo(HttpServletRequest request, @PathVariable long id) {
+        return adminService.checkAdmin(request, userId -> service.accountInfo(id));
     }
 
     @Operation(summary = "Create new account")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Account")
     public ResponseEntity<?> registerAccount(HttpServletRequest request, @RequestBody RegisterByAdminRequest registerByAdminRequest) {
-        return adminService.checkAdmin(request, userId -> {
-            service.registerAccount(registerByAdminRequest);
-            return new ResponseEntity<>(HttpStatus.OK);
-        });
+        return adminService.checkAdmin(request, userId -> service.registerAccount(registerByAdminRequest));
     }
 
     @Operation(summary = "Update info about user by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/Account/{id}")
-    public ResponseEntity<?> updateAccount(HttpServletRequest request, @PathVariable Long id, @RequestBody UpdateByAdminRequest updateByAdminRequest) {
-        return adminService.checkAdmin(request, userId -> {
-            service.updateAccount(id, updateByAdminRequest);
-            return new ResponseEntity<>(HttpStatus.OK);
-        });
+    public ResponseEntity<?> updateAccount(HttpServletRequest request, @PathVariable long id, @RequestBody UpdateByAdminRequest updateByAdminRequest) {
+        return adminService.checkAdmin(request, userId -> service.updateAccount(id, updateByAdminRequest));
     }
 
     @Operation(summary = "Delete user with id")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/Account/{id}")
-    public ResponseEntity<?> deleteAccount(HttpServletRequest request, @PathVariable Long id) {
-        return adminService.checkAdmin(request, userId -> {
-            service.deleteAccount(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        });
+    public ResponseEntity<?> deleteAccount(HttpServletRequest request, @PathVariable long id) {
+        return adminService.checkAdmin(request, userId -> service.deleteAccount(id));
     }
 }

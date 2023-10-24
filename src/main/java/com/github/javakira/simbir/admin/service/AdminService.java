@@ -23,15 +23,11 @@ public class AdminService {
         if (jwt.isPresent()) {
             Long userId = jwtService.extractId(jwt.get());
             //Role role = jwtService.extractRole(jwt.get());
-            Role role = accountRepository.findById(userId).get().getRole();
+            Role role = accountRepository.findById(userId).orElseThrow().getRole();
             if (role != Role.admin)
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admin can use this endpoint");
 
-            try {
-                return adminConsumer.apply(userId);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
+            return adminConsumer.apply(userId);
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
