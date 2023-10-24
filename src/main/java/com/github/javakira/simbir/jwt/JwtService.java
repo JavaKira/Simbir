@@ -24,7 +24,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    private static final String secret = "50861a2a1b08cd5f578facf25f0ad207831cafd0800ca9c761c7bf9b8e5510e3"; //todo remove from here
+    private static final String secret = "50861a2a1b08cd5f578facf25f0ad207831cafd0800ca9c761c7bf9b8e5510e3"; //todo delete from here
 
     private final TokenBanListRepository tokenBanListRepository;
 
@@ -66,7 +66,7 @@ public class JwtService {
         Optional<BannedToken> bannedToken = tokenBanListRepository.findById(token);
         if (bannedToken.isPresent()) {
             if (isTokenExpired(token))
-                tokenBanListRepository.delete(bannedToken.get());
+                tokenBanListRepository.delete(bannedToken.get()); //todo маловерятно что про токен не забудут и он удалится вообще когда нибудь
 
             return false;
         }
