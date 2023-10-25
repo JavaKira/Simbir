@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.admin.service;
+package com.github.javakira.simbir.admin;
 
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;

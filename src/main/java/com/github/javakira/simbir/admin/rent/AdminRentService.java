@@ -1,9 +1,9 @@
-package com.github.javakira.simbir.admin.service;
+package com.github.javakira.simbir.admin.rent;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
-import com.github.javakira.simbir.admin.schema.NewRentAdminRequest;
-import com.github.javakira.simbir.admin.schema.RentEndRequest;
+import com.github.javakira.simbir.admin.rent.NewRentAdminRequest;
+import com.github.javakira.simbir.admin.rent.RentEndRequest;
 import com.github.javakira.simbir.rent.Rent;
 import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.transport.Transport;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service

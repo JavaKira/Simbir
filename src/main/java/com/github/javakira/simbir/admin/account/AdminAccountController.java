@@ -1,10 +1,6 @@
-package com.github.javakira.simbir.admin.controller;
+package com.github.javakira.simbir.admin.account;
 
-import com.github.javakira.simbir.admin.schema.UpdateByAdminRequest;
-import com.github.javakira.simbir.admin.service.AdminAccountService;
-import com.github.javakira.simbir.admin.service.AdminService;
-import com.github.javakira.simbir.admin.schema.GetAccountsRequest;
-import com.github.javakira.simbir.admin.schema.RegisterByAdminRequest;
+import com.github.javakira.simbir.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;

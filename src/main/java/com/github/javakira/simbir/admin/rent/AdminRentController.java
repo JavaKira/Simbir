@@ -1,19 +1,15 @@
-package com.github.javakira.simbir.admin.controller;
+package com.github.javakira.simbir.admin.rent;
 
-import com.github.javakira.simbir.admin.schema.NewRentAdminRequest;
-import com.github.javakira.simbir.admin.schema.RentEndRequest;
-import com.github.javakira.simbir.admin.service.AdminRentService;
-import com.github.javakira.simbir.admin.service.AdminService;
-import com.github.javakira.simbir.rent.Rent;
+import com.github.javakira.simbir.admin.rent.NewRentAdminRequest;
+import com.github.javakira.simbir.admin.rent.RentEndRequest;
+import com.github.javakira.simbir.admin.rent.AdminRentService;
+import com.github.javakira.simbir.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

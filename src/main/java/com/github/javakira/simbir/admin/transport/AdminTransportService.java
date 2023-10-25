@@ -1,8 +1,5 @@
-package com.github.javakira.simbir.admin.service;
+package com.github.javakira.simbir.admin.transport;
 
-import com.github.javakira.simbir.admin.schema.GetTransportsRequest;
-import com.github.javakira.simbir.admin.schema.RegisterTransportByAdminRequest;
-import com.github.javakira.simbir.admin.schema.UpdateTransportByAdminRequest;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;

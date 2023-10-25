@@ -1,10 +1,10 @@
-package com.github.javakira.simbir.admin.controller;
+package com.github.javakira.simbir.admin.transport;
 
-import com.github.javakira.simbir.admin.schema.GetTransportsRequest;
-import com.github.javakira.simbir.admin.schema.RegisterTransportByAdminRequest;
-import com.github.javakira.simbir.admin.schema.UpdateTransportByAdminRequest;
-import com.github.javakira.simbir.admin.service.AdminService;
-import com.github.javakira.simbir.admin.service.AdminTransportService;
+import com.github.javakira.simbir.admin.transport.GetTransportsRequest;
+import com.github.javakira.simbir.admin.transport.RegisterTransportByAdminRequest;
+import com.github.javakira.simbir.admin.transport.UpdateTransportByAdminRequest;
+import com.github.javakira.simbir.admin.AdminService;
+import com.github.javakira.simbir.admin.transport.AdminTransportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;

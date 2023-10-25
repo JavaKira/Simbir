@@ -1,11 +1,8 @@
-package com.github.javakira.simbir.admin.service;
+package com.github.javakira.simbir.admin.account;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
-import com.github.javakira.simbir.admin.schema.GetAccountsRequest;
-import com.github.javakira.simbir.admin.schema.RegisterByAdminRequest;
-import com.github.javakira.simbir.admin.schema.UpdateByAdminRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

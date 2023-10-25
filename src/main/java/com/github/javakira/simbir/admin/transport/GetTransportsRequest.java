@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.admin.schema;
+package com.github.javakira.simbir.admin.transport;
 
 import com.github.javakira.simbir.transport.TransportType;
 import lombok.AllArgsConstructor;

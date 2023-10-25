@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.admin.schema;
+package com.github.javakira.simbir.admin.transport;
 
 import com.github.javakira.simbir.transport.TransportType;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterTransportByAdminRequest {
+public class UpdateTransportByAdminRequest {
     private long ownerId;
     private boolean canBeRented;
     private TransportType transportType;

@@ -1,4 +1,4 @@
-package com.github.javakira.simbir.admin.schema;
+package com.github.javakira.simbir.admin.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RentEndRequest {
-    private double lat;
-    private double longitude;
+public class GetAccountsRequest {
+    private int start;
+    private int count;
 }
