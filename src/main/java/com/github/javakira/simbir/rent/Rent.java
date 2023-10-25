@@ -1,12 +1,13 @@
 package com.github.javakira.simbir.rent;
 
-import com.github.javakira.simbir.transport.Transport;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Function;
@@ -22,8 +23,16 @@ public class Rent {
     }
 
     public enum RentType {
-        Minutes(rent -> ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd) / 60.0 * rent.priceOfUnit),
-        Days(rent -> ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd) / 86400.0 * rent.priceOfUnit);
+        Minutes(rent -> {
+            return BigDecimal.valueOf(ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd))
+                .divide(BigDecimal.valueOf(60.0), 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(rent.priceOfUnit)).doubleValue();
+        }),
+        Days(rent -> {
+            return BigDecimal.valueOf(ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd))
+                    .divide(BigDecimal.valueOf(86400.0), 2, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(rent.priceOfUnit)).doubleValue();
+        });
 
         final Function<Rent, Double> price;
 

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -149,7 +150,7 @@ public class RentService {
         rent.setFinalPrice(rent.getRentType().price(rent));
         transport.setCanBeRented(true);
         //Taking off money
-        account.setMoney(account.getMoney() - rent.getFinalPrice()); //todo стоит задуматься об длинной арифметике для счета денег
+        account.setMoney(BigDecimal.valueOf(account.getMoney()).subtract(BigDecimal.valueOf(rent.getFinalPrice())).doubleValue());
         //Adding rent to rentHistory of account and transport
         account.getRentHistory().add(rent);
         transport.getRentHistory().add(rent);
