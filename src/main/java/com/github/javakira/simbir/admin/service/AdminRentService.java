@@ -9,6 +9,8 @@ import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,27 +24,37 @@ public class AdminRentService {
     private final AccountRepository accountRepository;
     private final TransportRepository transportRepository;
 
-    public Optional<Rent> getRent(Long rentId) {
-        return repository.findById(rentId);
+    public ResponseEntity<?> getRent(long rentId) {
+        Optional<Rent> rentOptional = repository.findById(rentId);
+        if (rentOptional.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Rent with id %d doesnt exist".formatted(rentId));
+
+        return ResponseEntity.ok(rentOptional.get());
     }
 
-    public List<Rent> userHistory(Long userId) {
+    public ResponseEntity<?> userHistory(long userId) {
         Optional<Account> account = accountRepository.findById(userId);
         if (account.isEmpty())
-            throw new IllegalArgumentException("Account with id %d doesnt exist".formatted(userId));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Account with id %d doesnt exist".formatted(userId));
 
-        return account.get().getRentHistory();
+        return ResponseEntity.ok(account.get().getRentHistory());
     }
 
-    public List<Rent> transportHistory(Long transportId) {
+    public ResponseEntity<?> transportHistory(Long transportId) {
         Optional<Transport> transport = transportRepository.findById(transportId);
         if (transport.isEmpty())
-            throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(transportId));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(transportId));
 
-        return transport.get().getRentHistory();
+        return ResponseEntity.ok(transport.get().getRentHistory());
     }
 
-    public Rent newRent(NewRentAdminRequest request) {
+    public ResponseEntity<Rent> newRent(NewRentAdminRequest request) {
         Rent rent = Rent
                 .builder()
                 .rentState(Rent.RentState.opened)
@@ -55,16 +67,20 @@ public class AdminRentService {
                 .finalPrice(request.getFinalPrice())
                 .build();
         repository.save(rent);
-        return rent;
+        return ResponseEntity.ok(rent);
     }
 
-    public void endRent(Long id, RentEndRequest rentEndRequest) {
+    public ResponseEntity<?> endRent(long id, RentEndRequest rentEndRequest) {
         Optional<Rent> rentOptional = repository.findById(id);
         if (rentOptional.isEmpty())
-            throw new IllegalArgumentException("Rent with id %d doesnt exist".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Rent with id %d doesnt exist".formatted(id));
 
         if (rentOptional.get().getRentState() == Rent.RentState.ended)
-            throw new IllegalStateException("Rent already ended");
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Rent with id %d already ended".formatted(id));
 
         Rent rent = rentOptional.get();
         Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
@@ -85,5 +101,6 @@ public class AdminRentService {
         repository.save(rent);
         accountRepository.save(account);
         transportRepository.save(transport);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -25,44 +25,35 @@ public class AdminRentController {
     @Operation(summary = "Get rent data")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/Rent/{rentId}")
-    public ResponseEntity<?> rentInfo(@PathVariable Long rentId, HttpServletRequest request) {
-        return adminService.checkAdmin(request, userId -> {
-            Optional<Rent> rentOptional = service.getRent(rentId);
-            if (rentOptional.isEmpty())
-                return ResponseEntity.badRequest().body("Rent with id %d doesnt exist".formatted(rentId));
-
-            return ResponseEntity.ok().body(rentOptional.get());
-        });
+    public ResponseEntity<?> rentInfo(@PathVariable long rentId, HttpServletRequest request) {
+        return adminService.checkAdmin(request, userId -> service.getRent(rentId));
     }
 
     @Operation(summary = "Get user history of rents by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/UserHistory/{userId}")
-    public ResponseEntity<?> userHistory(@PathVariable Long userId, HttpServletRequest request) {
-        return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.userHistory(userId)));
+    public ResponseEntity<?> userHistory(@PathVariable long userId, HttpServletRequest request) {
+        return adminService.checkAdmin(request, currentUserId -> service.userHistory(userId));
     }
 
     @Operation(summary = "Get transport history of rents by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")
-    public ResponseEntity<?> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {
-        return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.transportHistory(transportId)));
+    public ResponseEntity<?> transportHistory(@PathVariable long transportId, HttpServletRequest request) {
+        return adminService.checkAdmin(request, currentUserId -> service.transportHistory(transportId));
     }
 
     @Operation(summary = "Create new rent")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Rent")
     public ResponseEntity<?> newRent(HttpServletRequest request, NewRentAdminRequest newRentAdminRequest) {
-        return adminService.checkAdmin(request, currentUserId -> ResponseEntity.ok().body(service.newRent(newRentAdminRequest)));
+        return adminService.checkAdmin(request, currentUserId -> service.newRent(newRentAdminRequest));
     }
 
     @Operation(summary = "End rent by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Rent/End/{id}")
-    public ResponseEntity<?> endRent(HttpServletRequest request, RentEndRequest rentEndRequest, @PathVariable Long id) {
-        return adminService.checkAdmin(request, currentUserId -> {
-            service.endRent(id, rentEndRequest);
-            return new ResponseEntity<>(HttpStatus.OK);
-        });
+    public ResponseEntity<?> endRent(HttpServletRequest request, RentEndRequest rentEndRequest, @PathVariable long id) {
+        return adminService.checkAdmin(request, currentUserId -> service.endRent(id, rentEndRequest));
     }
 }
