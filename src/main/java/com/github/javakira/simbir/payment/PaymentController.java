@@ -18,7 +18,6 @@ public class PaymentController {
     private final JwtService jwtService;
     private final PaymentService paymentService;
 
-    //todo потом отсаётся поебаться со списыванием
     @Operation(summary = "Adds 250 000 money on account with id accountId")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Hesoyam/{accountId}")

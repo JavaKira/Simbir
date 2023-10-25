@@ -30,7 +30,6 @@ public class TransportController {
         return service.get(id);
     }
 
-    //todo refactor
     @Operation(summary = "Delete transport by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")

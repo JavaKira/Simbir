@@ -25,7 +25,6 @@ public class AccountController {
         return jwtService.accessUser(request, service::accountInfo);
     }
 
-    //todo вывод сообщений ошибок сюда тоже нужно
     @Operation(summary = "Get new jwt token")
     @PostMapping("/SingIn")
     public ResponseEntity<?> singIn(@RequestBody AuthRequest request) {
@@ -46,7 +45,6 @@ public class AccountController {
         return service.singOut(token.orElseThrow());
     }
 
-    //todo
     @Operation(summary = "Update user data")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/Update")
