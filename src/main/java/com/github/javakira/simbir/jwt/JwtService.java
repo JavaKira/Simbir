@@ -9,6 +9,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,9 +25,9 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@PropertySource("classpath:jwt.properties")
 public class JwtService {
-    private static final String secret = "50861a2a1b08cd5f578facf25f0ad207831cafd0800ca9c761c7bf9b8e5510e3"; //todo delete from here
-
+    private final JwtProperties properties;
     private final TokenBanListRepository tokenBanListRepository;
 
     public String extractLogin(String token) {
@@ -95,7 +97,7 @@ public class JwtService {
                 .setSubject(account.getUsername())
                 .addClaims(Map.of("role", account.getRole()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 10000000)) //todo move to app.prop
+                .setExpiration(new Date(System.currentTimeMillis() + properties.getExpiration()))
                 .signWith(getSingInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -109,7 +111,7 @@ public class JwtService {
     }
 
     private Key getSingInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(properties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
