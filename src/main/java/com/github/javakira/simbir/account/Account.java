@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Account implements UserDetails {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     @OneToMany
     private List<Rent> rentHistory;

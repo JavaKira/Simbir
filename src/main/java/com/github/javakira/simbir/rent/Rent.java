@@ -37,7 +37,7 @@ public class Rent {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private Long ownerId;
     private Long transportId;

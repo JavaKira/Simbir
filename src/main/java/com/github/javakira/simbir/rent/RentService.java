@@ -26,6 +26,7 @@ public class RentService {
         return transports
                 .stream()
                 .filter(transport -> transport.getTransportType().equals(params.getType()))
+                .filter(this::canBeRented)
                 .filter(transport ->
                         isInRange(
                                 transport.getLongitude(),
@@ -46,7 +47,7 @@ public class RentService {
                     .body("Rent with id %d doesnt exist".formatted(rentId));
 
         Optional<Transport> transportOptional = transportRepository.findById(rentOptional.get().getTransportId());
-        if (!rentOptional.get().getOwnerId().equals(userId) ||
+        if (!rentOptional.get().getOwnerId().equals(userId) &&
             !transportOptional.orElseThrow().getOwnerId().equals(userId))
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
@@ -168,6 +169,10 @@ public class RentService {
     ) {
         double distance = Math.sqrt(Math.pow(pointLongitude - centerLongitude, 2) + Math.pow(pointLatitude - centerLatitude, 2));
         return distance <= radius;
+    }
+
+    private boolean canBeRented(Transport transport) {
+        return transport.isCanBeRented();
     }
 
     public Optional<Rent> get(Long id) {

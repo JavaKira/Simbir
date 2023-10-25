@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Transport {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     //TODO НУЖНО РАЗОБРАТЬСЯ С NULLABLE И NONULLABLE
     @Column(nullable = false)
