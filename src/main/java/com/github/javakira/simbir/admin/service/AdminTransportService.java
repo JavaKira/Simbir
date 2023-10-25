@@ -63,7 +63,7 @@ public class AdminTransportService {
         return ResponseEntity.ok(transport);
     }
 
-    public ResponseEntity<?> updateTransport(Long id, UpdateTransportByAdminRequest request) {
+    public ResponseEntity<?> updateTransport(long id, UpdateTransportByAdminRequest request) {
         Optional<Transport> old = repository.findById(id);
         if (old.isEmpty())
             return ResponseEntity
