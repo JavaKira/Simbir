@@ -1,6 +1,8 @@
 package com.github.javakira.simbir.transport;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,7 +12,7 @@ import java.util.Optional;
 public class TransportService {
     private final TransportRepository repository;
 
-    public void addNew(TransportAddRequest request, Long ownerId) {
+    public ResponseEntity<?> addNew(TransportAddRequest request, long ownerId) {
         Transport transport = Transport
                 .builder()
                 .ownerId(ownerId)
@@ -26,35 +28,46 @@ public class TransportService {
                 .dayPrice(request.getDayPrice())
                 .build();
         repository.save(transport);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public void delete(long transportId, long userId) {
+    public ResponseEntity<?> delete(long transportId, long userId) {
         Optional<Transport> transport = repository.findById(transportId);
         if (transport.isEmpty())
-            throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(transportId));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(transportId));
 
         if (!transport.get().getOwnerId().equals(userId))
-            throw new IllegalArgumentException("Only owner of transport with id %d can delete him".formatted(transportId));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Only owner of transport with id %d can delete him".formatted(transportId));
 
-        delete(transport.get());
+        repository.delete(transport.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public void delete(Transport transport) {
-        repository.delete(transport);
+    public ResponseEntity<?> get(Long id) {
+        Optional<Transport> transport = repository.findById(id);
+        if (transport.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(id));
+
+        return ResponseEntity.ok(repository.findById(id));
     }
 
-    public Optional<Transport> get(Long id) {
-        return repository.findById(id);
-    }
-
-    public void update(long id, long userId, TransportUpdateRequest request) {
+    public ResponseEntity<?> update(long id, long userId, TransportUpdateRequest request) {
         Optional<Transport> transportOptional = repository.findById(id);
         if (transportOptional.isEmpty())
-            throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(id));
 
-        //todo такая проблема, что возращаемый код не получится поставить на FORBIDDEN либо NOT_FOUND, всегда будет BAD_REQUEST при ошибке
         if (!transportOptional.get().getOwnerId().equals(userId))
-            throw new IllegalArgumentException("Only owner of transportOptional with id %d can update him".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("Only owner of transportOptional with id %d can update him".formatted(id));
 
         Transport transport = transportOptional.get();
         transport.setCanBeRented(request.isCanBeRented());
@@ -67,5 +80,6 @@ public class TransportService {
         transport.setMinutePrice(request.getMinutePrice());
         transport.setDayPrice(request.getDayPrice());
         repository.save(transport);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
