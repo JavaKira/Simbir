@@ -6,6 +6,8 @@ import com.github.javakira.simbir.admin.schema.UpdateTransportByAdminRequest;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,25 +19,32 @@ import java.util.Optional;
 public class AdminTransportService {
     private final TransportRepository repository;
 
-    public List<Long> transports(GetTransportsRequest request) {
+    public ResponseEntity<?> transports(GetTransportsRequest request) {
         //todo accountRepository.get(request)
         List<Transport> transports = repository.findAll();
         transports = transports
                 .stream()
                 .filter(transport -> request.getSearchTransportType().fits(transport.getTransportType()))
                 .toList();
-        return transports
+        return ResponseEntity.ok(transports
                 .subList(request.getStart(), Math.max(request.getStart() + request.getCount(), transports.size()))
                 .stream()
                 .map(Transport::getId)
-                .toList();
+                .toList()
+        );
     }
 
-    public Optional<Transport> transportInfo(Long id) {
-        return repository.findById(id);
+    public ResponseEntity<?> transportInfo(long id) {
+        Optional<Transport> transport = repository.findById(id);
+        if (transport.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(id));
+
+        return ResponseEntity.ok(repository.findById(id));
     }
 
-    public Transport registerTransport(RegisterTransportByAdminRequest request) {
+    public ResponseEntity<Transport> registerTransport(RegisterTransportByAdminRequest request) {
         Transport transport = Transport
                 .builder()
                 .ownerId(request.getOwnerId())
@@ -51,13 +60,15 @@ public class AdminTransportService {
                 .longitude(request.getLongitude())
                 .build();
         repository.save(transport);
-        return transport;
+        return ResponseEntity.ok(transport);
     }
 
-    public Transport updateTransport(Long id, UpdateTransportByAdminRequest request) {
+    public ResponseEntity<?> updateTransport(Long id, UpdateTransportByAdminRequest request) {
         Optional<Transport> old = repository.findById(id);
         if (old.isEmpty())
-            throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(id));
 
         Transport transport = Transport
                 .builder()
@@ -76,14 +87,17 @@ public class AdminTransportService {
                 .id(old.get().getId())
                 .build();
         repository.save(transport);
-        return transport;
+        return ResponseEntity.ok(old.get());
     }
 
-    public void deleteTransport(Long id) {
+    public ResponseEntity<?> deleteTransport(long id) {
         Optional<Transport> transport = repository.findById(id);
         if (transport.isEmpty())
-            throw new IllegalArgumentException("Transport with id %d doesnt exist".formatted(id));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(id));
 
         repository.delete(transport.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
