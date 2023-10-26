@@ -27,14 +27,7 @@ public class AccountService {
                     .body("Account with id %d doesnt exist".formatted(id));
 
         Account account = accountOptional.get();
-        return ResponseEntity.ok(AccountInfoResponse
-                .builder()
-                .id(account.getId())
-                .money(account.getMoney())
-                .role(account.getRole())
-                .username(account.getUsername())
-                .build()
-        );
+        return ResponseEntity.ok(AccountDto.from(account));
     }
 
     public ResponseEntity<?> singIn(AuthRequest request) {

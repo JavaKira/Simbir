@@ -54,7 +54,7 @@ public class TransportService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Transport with id %d doesnt exist".formatted(id));
 
-        return ResponseEntity.ok(repository.findById(id));
+        return ResponseEntity.ok(TransportDto.from(transport.get()));
     }
 
     public ResponseEntity<?> update(long id, long userId, TransportUpdateRequest request) {

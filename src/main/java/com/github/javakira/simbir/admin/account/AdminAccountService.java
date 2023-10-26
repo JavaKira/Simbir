@@ -1,6 +1,7 @@
 package com.github.javakira.simbir.admin.account;
 
 import com.github.javakira.simbir.account.Account;
+import com.github.javakira.simbir.account.AccountDto;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class AdminAccountService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Account with id %d doesnt exist".formatted(id));
 
-        return ResponseEntity.ok(accountOptional.get());
+        return ResponseEntity.ok(AccountDto.from(accountOptional.get()));
     }
 
     public ResponseEntity<?> registerAccount(RegisterByAdminRequest request) {

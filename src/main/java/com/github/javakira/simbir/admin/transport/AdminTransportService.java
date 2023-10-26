@@ -1,6 +1,7 @@
 package com.github.javakira.simbir.admin.transport;
 
 import com.github.javakira.simbir.transport.Transport;
+import com.github.javakira.simbir.transport.TransportDto;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,10 +39,10 @@ public class AdminTransportService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Transport with id %d doesnt exist".formatted(id));
 
-        return ResponseEntity.ok(repository.findById(id));
+        return ResponseEntity.ok(TransportDto.from(transport.get()));
     }
 
-    public ResponseEntity<Transport> registerTransport(RegisterTransportByAdminRequest request) {
+    public ResponseEntity<TransportDto> registerTransport(RegisterTransportByAdminRequest request) {
         Transport transport = Transport
                 .builder()
                 .ownerId(request.getOwnerId())
@@ -57,7 +58,7 @@ public class AdminTransportService {
                 .longitude(request.getLongitude())
                 .build();
         repository.save(transport);
-        return ResponseEntity.ok(transport);
+        return ResponseEntity.ok(TransportDto.from(transport));
     }
 
     public ResponseEntity<?> updateTransport(long id, UpdateTransportByAdminRequest request) {
@@ -84,7 +85,7 @@ public class AdminTransportService {
                 .id(old.get().getId())
                 .build();
         repository.save(transport);
-        return ResponseEntity.ok(old.get());
+        return ResponseEntity.ok(TransportDto.from(transport));
     }
 
     public ResponseEntity<?> deleteTransport(long id) {
