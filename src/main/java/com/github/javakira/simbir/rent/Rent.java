@@ -24,14 +24,16 @@ public class Rent {
 
     public enum RentType {
         Minutes(rent -> {
-            return BigDecimal.valueOf(ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd))
-                .divide(BigDecimal.valueOf(60.0), 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(rent.priceOfUnit)).doubleValue();
+            return ChronoUnit.MINUTES.between(
+                    rent.timeStart.truncatedTo(ChronoUnit.MINUTES),
+                    rent.timeEnd.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
+            ) * rent.priceOfUnit;
         }),
         Days(rent -> {
-            return BigDecimal.valueOf(ChronoUnit.SECONDS.between(rent.timeStart, rent.timeEnd))
-                    .divide(BigDecimal.valueOf(86400.0), 2, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(rent.priceOfUnit)).doubleValue();
+            return ChronoUnit.DAYS.between(
+                    rent.timeStart.truncatedTo(ChronoUnit.DAYS),
+                    rent.timeEnd.truncatedTo(ChronoUnit.DAYS).plusDays(1)
+            ) * rent.priceOfUnit;
         });
 
         final Function<Rent, Double> price;
