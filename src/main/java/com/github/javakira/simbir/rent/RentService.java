@@ -99,6 +99,12 @@ public class RentService {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Transport with id %d cant be rented".formatted(transportId));
 
+        Optional<Account> accountOptional = accountRepository.findById(userId);
+        if (accountOptional.orElseThrow().getMoney() < 0)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Cant rent transport: account with id %d have negative balance".formatted(userId));
+
         double unitPrice;
         try {
             unitPrice = request.getRentType().priceUnit(transport.get());

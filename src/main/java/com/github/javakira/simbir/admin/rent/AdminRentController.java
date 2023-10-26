@@ -42,14 +42,28 @@ public class AdminRentController {
     @Operation(summary = "Create new rent")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Rent")
-    public ResponseEntity<?> newRent(HttpServletRequest request, NewRentAdminRequest newRentAdminRequest) {
+    public ResponseEntity<?> newRent(HttpServletRequest request, @RequestBody NewRentAdminRequest newRentAdminRequest) {
         return adminService.checkAdmin(request, currentUserId -> service.newRent(newRentAdminRequest));
     }
 
     @Operation(summary = "End rent by id")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Rent/End/{id}")
-    public ResponseEntity<?> endRent(HttpServletRequest request, RentEndRequest rentEndRequest, @PathVariable long id) {
+    public ResponseEntity<?> endRent(HttpServletRequest request, @RequestBody RentEndRequest rentEndRequest, @PathVariable long id) {
         return adminService.checkAdmin(request, currentUserId -> service.endRent(id, rentEndRequest));
+    }
+
+    @Operation(summary = "Update rent by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @PutMapping("/Rent/{id}")
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody UpdateRentAdminRequest updateRentAdminRequest, @PathVariable long id) {
+        return adminService.checkAdmin(request, userId -> service.update(updateRentAdminRequest, id));
+    }
+
+    @Operation(summary = "Delete rent by id")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @DeleteMapping("/Rent/{id}")
+    public ResponseEntity<?> delete(HttpServletRequest request, @PathVariable long id) {
+        return adminService.checkAdmin(request, userId -> service.delete(id));
     }
 }

@@ -60,13 +60,17 @@ public class AdminRentService {
                 .builder()
                 .rentState(Rent.RentState.opened)
                 .transportId(request.getTransportId())
-                .timeEnd(LocalDateTime.parse(request.getTimeEnd()))
                 .timeStart(LocalDateTime.parse(request.getTimeStart()))
+                .timeEnd(null)
                 .rentType(request.getRentType())
                 .ownerId(request.getUserId())
                 .priceOfUnit(request.getPriceOfUnit())
                 .finalPrice(request.getFinalPrice())
                 .build();
+
+        if (request.getTimeEnd() != null)
+            rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
+
         repository.save(rent);
         return ResponseEntity.ok(RentDto.from(rent));
     }
@@ -103,5 +107,50 @@ public class AdminRentService {
         accountRepository.save(account);
         transportRepository.save(transport);
         return ResponseEntity.ok(RentDto.from(rent));
+    }
+
+    public ResponseEntity<?> update(UpdateRentAdminRequest request, long id) {
+        Optional<Rent> rentOptional = repository.findById(id);
+        if (rentOptional.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Rent with id %d doesnt exist".formatted(id));
+
+        Rent rent = Rent
+                .builder()
+                .id(id)
+                .ownerId(rentOptional.get().getOwnerId())
+                .rentState(Rent.RentState.opened)
+                .transportId(request.getTransportId())
+                .timeStart(LocalDateTime.parse(request.getTimeStart()))
+                .timeEnd(null)
+                .rentType(request.getRentType())
+                .ownerId(request.getUserId())
+                .priceOfUnit(request.getPriceOfUnit())
+                .finalPrice(request.getFinalPrice())
+                .build();
+
+        if (request.getTimeEnd() != null)
+            rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
+
+        repository.save(rent);
+        return ResponseEntity.ok(RentDto.from(rent));
+    }
+
+    public ResponseEntity<?> delete(long id) {
+        Optional<Rent> rentOptional = repository.findById(id);
+        if (rentOptional.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Rent with id %d doesnt exist".formatted(id));
+
+        Optional<Account> account = accountRepository.findById(rentOptional.get().getOwnerId());
+        Optional<Transport> transport = transportRepository.findById(rentOptional.get().getTransportId());
+        account.orElseThrow().getRentHistory().removeIf(rent -> rent.getId().equals(id));
+        transport.orElseThrow().getRentHistory().removeIf(rent -> rent.getId().equals(id));
+        accountRepository.save(account.get());
+        transportRepository.save(transport.get());
+        repository.delete(rentOptional.get());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -20,6 +20,7 @@ public class Rent {
         opened, ended
     }
 
+    //todo надо подумать над тем, что бы перенести в сервис
     public enum RentType {
         Minutes {
             @Override
