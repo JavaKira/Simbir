@@ -99,18 +99,11 @@ public class RentService {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Transport with id %d cant be rented".formatted(transportId));
 
-        double unitPrice = 0;
-        //todo мб паттерн какой нибудь умный заюзать можно. Думаю State машину написать в Enum
-        if (request.getRentType() == Rent.RentType.Minutes) {
-            if (transport.get().getMinutePrice() == null)
-                return cantBeRented(transportId, Rent.RentType.Minutes);
-
-            unitPrice = transport.get().getMinutePrice();
-        } else if (request.getRentType() == Rent.RentType.Days) {
-            if (transport.get().getDayPrice() == null)
-                return cantBeRented(transportId, Rent.RentType.Days);
-
-            unitPrice = transport.get().getDayPrice();
+        double unitPrice;
+        try {
+            unitPrice = request.getRentType().priceUnit(transport.get());
+        } catch (Exception e) {
+            return cantBeRented(transportId, request.getRentType());
         }
 
         Rent rent = Rent

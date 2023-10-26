@@ -1,5 +1,6 @@
 package com.github.javakira.simbir.rent;
 
+import com.github.javakira.simbir.transport.Transport;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,28 +24,43 @@ public class Rent {
     }
 
     public enum RentType {
-        Minutes(rent -> {
-            return ChronoUnit.MINUTES.between(
-                    rent.timeStart.truncatedTo(ChronoUnit.MINUTES),
-                    rent.timeEnd.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
-            ) * rent.priceOfUnit;
-        }),
-        Days(rent -> {
-            return ChronoUnit.DAYS.between(
-                    rent.timeStart.truncatedTo(ChronoUnit.DAYS),
-                    rent.timeEnd.truncatedTo(ChronoUnit.DAYS).plusDays(1)
-            ) * rent.priceOfUnit;
-        });
+        Minutes {
+            @Override
+            public double price(Rent rent) {
+                return ChronoUnit.MINUTES.between(
+                        rent.timeStart.truncatedTo(ChronoUnit.MINUTES),
+                        rent.timeEnd.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
+                ) * rent.priceOfUnit;
+            }
 
-        final Function<Rent, Double> price;
+            @Override
+            public double priceUnit(Transport transport) {
+                if (transport.getMinutePrice() == null)
+                    throw new IllegalArgumentException();
 
-        RentType(Function<Rent, Double> price) {
-            this.price = price;
-        }
+                return transport.getMinutePrice();
+            }
+        },
+        Days {
+            @Override
+            public double price(Rent rent) {
+                return ChronoUnit.DAYS.between(
+                        rent.timeStart.truncatedTo(ChronoUnit.DAYS),
+                        rent.timeEnd.truncatedTo(ChronoUnit.DAYS).plusDays(1)
+                ) * rent.priceOfUnit;
+            }
 
-        public double price(Rent rent) {
-            return price.apply(rent);
-        }
+            @Override
+            public double priceUnit(Transport transport) {
+                if (transport.getDayPrice() == null)
+                    throw new IllegalArgumentException();
+
+                return transport.getDayPrice();
+            }
+        };
+
+        public abstract double price(Rent rent);
+        public abstract double priceUnit(Transport transport) throws IllegalArgumentException;
     }
 
     @Id
