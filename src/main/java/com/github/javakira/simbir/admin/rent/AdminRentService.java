@@ -5,6 +5,7 @@ import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.admin.rent.NewRentAdminRequest;
 import com.github.javakira.simbir.admin.rent.RentEndRequest;
 import com.github.javakira.simbir.rent.Rent;
+import com.github.javakira.simbir.rent.RentDto;
 import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
@@ -31,7 +32,7 @@ public class AdminRentService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Rent with id %d doesnt exist".formatted(rentId));
 
-        return ResponseEntity.ok(rentOptional.get());
+        return ResponseEntity.ok(RentDto.from(rentOptional.get()));
     }
 
     public ResponseEntity<?> userHistory(long userId) {
@@ -41,7 +42,7 @@ public class AdminRentService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Account with id %d doesnt exist".formatted(userId));
 
-        return ResponseEntity.ok(account.get().getRentHistory());
+        return ResponseEntity.ok(account.get().getRentHistory().stream().map(RentDto::from).toList());
     }
 
     public ResponseEntity<?> transportHistory(Long transportId) {
@@ -51,10 +52,10 @@ public class AdminRentService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Transport with id %d doesnt exist".formatted(transportId));
 
-        return ResponseEntity.ok(transport.get().getRentHistory());
+        return ResponseEntity.ok(transport.get().getRentHistory().stream().map(RentDto::from).toList());
     }
 
-    public ResponseEntity<Rent> newRent(NewRentAdminRequest request) {
+    public ResponseEntity<RentDto> newRent(NewRentAdminRequest request) {
         Rent rent = Rent
                 .builder()
                 .rentState(Rent.RentState.opened)
@@ -67,7 +68,7 @@ public class AdminRentService {
                 .finalPrice(request.getFinalPrice())
                 .build();
         repository.save(rent);
-        return ResponseEntity.ok(rent);
+        return ResponseEntity.ok(RentDto.from(rent));
     }
 
     public ResponseEntity<?> endRent(long id, RentEndRequest rentEndRequest) {
@@ -101,6 +102,6 @@ public class AdminRentService {
         repository.save(rent);
         accountRepository.save(account);
         transportRepository.save(transport);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(RentDto.from(rent));
     }
 }

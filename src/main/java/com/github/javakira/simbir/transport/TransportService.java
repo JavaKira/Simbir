@@ -34,7 +34,7 @@ public class TransportService {
                 .dayPrice(request.getDayPrice())
                 .build();
         repository.save(transport);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(TransportDto.from(transport));
     }
 
     public ResponseEntity<?> delete(long transportId, long userId) {
@@ -91,6 +91,6 @@ public class TransportService {
         transport.setMinutePrice(request.getMinutePrice());
         transport.setDayPrice(request.getDayPrice());
         repository.save(transport);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(TransportDto.from(transport));
     }
 }

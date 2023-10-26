@@ -77,7 +77,7 @@ public class AccountService {
         accountOptional.get().setUsername(request.getUsername());
         accountOptional.get().setPassword(passwordEncoder.encode(request.getPassword()));
         repository.save(accountOptional.get());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(AccountDto.from(accountOptional.get()));
     }
 
     public ResponseEntity<?> singOut(String token) {

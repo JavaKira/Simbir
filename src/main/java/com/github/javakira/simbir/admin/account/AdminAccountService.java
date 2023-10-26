@@ -57,7 +57,7 @@ public class AdminAccountService {
                 .money(request.getBalance())
                 .build();
         accountRepository.save(account);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(AccountDto.from(account));
     }
 
     public ResponseEntity<?> updateAccount(long id, UpdateByAdminRequest request) {
@@ -84,7 +84,7 @@ public class AdminAccountService {
                 .rentHistory(accountOptional.get().getRentHistory())
                 .build();
         accountRepository.save(account);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(AccountDto.from(account));
     }
 
     public ResponseEntity<?> deleteAccount(long id) {
