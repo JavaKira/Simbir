@@ -100,11 +100,18 @@ public class RentService {
                     .body("Transport with id %d cant be rented".formatted(transportId));
 
         double unitPrice = 0;
-        //todo добавить проверки
-        if (request.getRentType() == Rent.RentType.Minutes)
+        //todo мб паттерн какой нибудь умный заюзать можно. Думаю State машину написать в Enum
+        if (request.getRentType() == Rent.RentType.Minutes) {
+            if (transport.get().getMinutePrice() == null)
+                return cantBeRented(transportId, Rent.RentType.Minutes);
+
             unitPrice = transport.get().getMinutePrice();
-        else if (request.getRentType() == Rent.RentType.Days)
+        } else if (request.getRentType() == Rent.RentType.Days) {
+            if (transport.get().getDayPrice() == null)
+                return cantBeRented(transportId, Rent.RentType.Days);
+
             unitPrice = transport.get().getDayPrice();
+        }
 
         Rent rent = Rent
                 .builder()
@@ -174,6 +181,12 @@ public class RentService {
 
     private boolean canBeRented(Transport transport) {
         return transport.isCanBeRented();
+    }
+
+    private ResponseEntity<?> cantBeRented(long transportId, Rent.RentType rentType) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Transport with id %d cant be rented with rentType %s".formatted(transportId, rentType));
     }
 
     public Optional<Rent> get(Long id) {

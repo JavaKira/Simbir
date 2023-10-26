@@ -13,6 +13,12 @@ public class TransportService {
     private final TransportRepository repository;
 
     public ResponseEntity<?> addNew(TransportAddRequest request, long ownerId) {
+        if (request.isCanBeRented() && request.getMinutePrice() == null && request.getDayPrice() == null)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day");
+
+
         Transport transport = Transport
                 .builder()
                 .ownerId(ownerId)
@@ -68,6 +74,11 @@ public class TransportService {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body("Only owner of transportOptional with id %d can update him".formatted(id));
+
+        if (request.isCanBeRented() && request.getMinutePrice() == null && request.getDayPrice() == null)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day");
 
         Transport transport = transportOptional.get();
         transport.setCanBeRented(request.isCanBeRented());
