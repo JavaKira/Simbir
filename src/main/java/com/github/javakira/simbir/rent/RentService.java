@@ -26,7 +26,7 @@ public class RentService {
 
         return transports
                 .stream()
-                .filter(transport -> transport.getTransportType().equals(params.getType()))
+                .filter(transport -> params.getType().fits(transport.getTransportType()))
                 .filter(this::canBeRented)
                 .filter(transport ->
                         isInRange(
