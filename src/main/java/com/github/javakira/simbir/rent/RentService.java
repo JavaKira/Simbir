@@ -54,7 +54,7 @@ public class RentService {
                     .status(HttpStatus.FORBIDDEN)
                     .body("Only owner of transport and renter can get info about rent");
 
-        return ResponseEntity.ok(rentOptional.get());
+        return ResponseEntity.ok(RentDto.from(rentOptional.get()));
     }
 
     public ResponseEntity<?> accountHistory(long userId) {
@@ -64,7 +64,7 @@ public class RentService {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("User with id %d doesnt exist".formatted(userId));
 
-        return ResponseEntity.ok(account.get().getRentHistory());
+        return ResponseEntity.ok(account.get().getRentHistory().stream().map(RentDto::from).toList());
     }
 
     public ResponseEntity<?> transportHistory(long transportId, long userId) {
@@ -79,7 +79,7 @@ public class RentService {
                     .status(HttpStatus.FORBIDDEN)
                     .body("Only owner of transport get rent history");
 
-        return ResponseEntity.ok(transport.get().getRentHistory());
+        return ResponseEntity.ok(transport.get().getRentHistory().stream().map(RentDto::from).toList());
     }
 
     public ResponseEntity<?> rent(NewRentRequest request, long transportId, long userId) {
@@ -118,7 +118,7 @@ public class RentService {
         transport.get().setCanBeRented(false);
         repository.save(rent);
         transportRepository.save(transport.get());
-        return ResponseEntity.ok(rent);
+        return ResponseEntity.ok(RentDto.from(rent));
     }
 
     public ResponseEntity<?> end(Long rentId, RentEndRequest rentEndRequest, Long userId) {
@@ -158,7 +158,7 @@ public class RentService {
         repository.save(rent);
         accountRepository.save(account);
         transportRepository.save(transport);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(RentDto.from(rent));
     }
 
     private boolean isInRange(
