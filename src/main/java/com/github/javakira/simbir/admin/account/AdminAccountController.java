@@ -19,7 +19,7 @@ public class AdminAccountController {
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/Account")
     public ResponseEntity<?> accounts(GetAccountsRequest getAccountsRequest, HttpServletRequest request) {
-        return adminService.checkAdmin(request, userId -> ResponseEntity.ok(service.accounts(getAccountsRequest)));
+        return adminService.checkAdmin(request, userId -> service.accounts(getAccountsRequest));
     }
 
     @Operation(summary = "Get info about user by id")

@@ -8,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewRentAdminRequest {
-    //todo многое нужно в Rent подабавлять
     @NonNull
     private Long transportId;
     @NonNull

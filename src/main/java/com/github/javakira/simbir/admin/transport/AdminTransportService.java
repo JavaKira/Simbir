@@ -18,14 +18,18 @@ public class AdminTransportService {
     private final TransportRepository repository;
 
     public ResponseEntity<?> transports(GetTransportsRequest request) {
-        //todo accountRepository.get(request)
+        if (request.getStart() < 0 || request.getCount() < 0)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("'start' and 'count' must be > 0");
+
         List<Transport> transports = repository.findAll();
         transports = transports
                 .stream()
                 .filter(transport -> request.getSearchTransportType().fits(transport.getTransportType()))
                 .toList();
         return ResponseEntity.ok(transports
-                .subList(request.getStart(), Math.max(request.getStart() + request.getCount(), transports.size()))
+                .subList(Math.min(request.getStart(), transports.size()), Math.min(request.getStart() + request.getCount(), transports.size()))
                 .stream()
                 .map(Transport::getId)
                 .toList()

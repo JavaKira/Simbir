@@ -17,13 +17,22 @@ import java.util.Optional;
 public class AdminAccountService {
     private final AccountRepository accountRepository;
 
-    public List<Long> accounts(GetAccountsRequest request) {
-        //todo accountRepository.get(request)
+    public ResponseEntity<?> accounts(GetAccountsRequest request) {
+        if (request.getStart() < 0 || request.getCount() < 0)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("'start' and 'count' must be > 0");
+
         List<Account> accounts = accountRepository.findAll();
-        return accounts.subList(request.getStart(), Math.max(request.getStart() + request.getCount(), accounts.size())).stream().map(Account::getId).toList();
+        return ResponseEntity.ok(
+                accounts
+                .subList(Math.min(request.getStart(), accounts.size()), Math.min(request.getStart() + request.getCount(), accounts.size()))
+                .stream()
+                .map(Account::getId)
+                .toList()
+        );
     }
 
-    //todo можно сделать также как в пакете account: AccountInfoResponse
     public ResponseEntity<?> accountInfo(long id) {
         Optional<Account> accountOptional = accountRepository.findById(id);
         if (accountOptional.isEmpty())

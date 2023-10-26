@@ -19,7 +19,6 @@ public class AdminTransportController {
     private final AdminTransportService service;
     private final AdminService adminService;
 
-    //TODO test
     @GetMapping
     @Operation(summary = "Get list of all transport")
     @SecurityRequirement(name = "Bearer Authentication")
