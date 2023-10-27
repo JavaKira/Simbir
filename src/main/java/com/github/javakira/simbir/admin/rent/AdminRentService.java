@@ -144,13 +144,26 @@ public class AdminRentService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Rent with id %d doesnt exist".formatted(id));
 
-        Optional<Account> account = accountRepository.findById(rentOptional.get().getOwnerId());
+        rawDelete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public void deleteRentByOwner(long ownerId) {
+        repository
+                .findAll()
+                .stream()
+                .filter(rent -> rent.getOwnerId().equals(ownerId))
+                .forEach(rent -> rawDelete(rent.getId()));
+    }
+
+    public void rawDelete(long id) {
+        Optional<Rent> rentOptional = repository.findById(id);
+        Optional<Account> account = accountRepository.findById(rentOptional.orElseThrow().getOwnerId());
         Optional<Transport> transport = transportRepository.findById(rentOptional.get().getTransportId());
         account.orElseThrow().getRentHistory().removeIf(rent -> rent.getId().equals(id));
         transport.orElseThrow().getRentHistory().removeIf(rent -> rent.getId().equals(id));
         accountRepository.save(account.get());
         transportRepository.save(transport.get());
         repository.delete(rentOptional.get());
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

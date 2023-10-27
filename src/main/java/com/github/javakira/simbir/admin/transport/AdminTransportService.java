@@ -102,4 +102,14 @@ public class AdminTransportService {
         repository.delete(transport.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    public void deleteTransportByOwner(long ownerId) {
+        repository.deleteAll(
+                repository
+                .findAll()
+                .stream()
+                .filter(transport -> transport.getOwnerId().equals(ownerId))
+                .toList()
+        );
+    }
 }

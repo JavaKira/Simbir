@@ -4,6 +4,10 @@ import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountDto;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
+import com.github.javakira.simbir.admin.rent.AdminRentService;
+import com.github.javakira.simbir.admin.transport.AdminTransportService;
+import com.github.javakira.simbir.rent.RentRepository;
+import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminAccountService {
     private final AccountRepository accountRepository;
+    private final AdminRentService rentService;
+    private final AdminTransportService transportService;
 
     public ResponseEntity<?> accounts(GetAccountsRequest request) {
         if (request.getStart() < 0 || request.getCount() < 0)
@@ -94,6 +100,9 @@ public class AdminAccountService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Account with id %d doesnt exist".formatted(id));
 
+        //todo можно было и связностью в JPA это сделать
+        rentService.deleteRentByOwner(id);
+        transportService.deleteTransportByOwner(id);
         accountRepository.delete(accountOptional.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }
