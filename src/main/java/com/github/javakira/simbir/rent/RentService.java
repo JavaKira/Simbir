@@ -2,6 +2,7 @@ package com.github.javakira.simbir.rent;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
+import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.NonNull;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RentService {
     private final RentRepository repository;
+    private final PaymentService paymentService;
     private final TransportRepository transportRepository;
     private final AccountRepository accountRepository;
 
@@ -160,7 +162,7 @@ public class RentService {
         rent.setFinalPrice(rent.getRentType().price(rent));
         transport.setCanBeRented(true);
         //Taking off money
-        transferMoney(
+        paymentService.transferMoney(
                 rent.getFinalPrice(),
                 account,
                 transportOwner
@@ -173,11 +175,6 @@ public class RentService {
         accountRepository.save(account);
         transportRepository.save(transport);
         return ResponseEntity.ok(RentDto.from(rent));
-    }
-
-    private void transferMoney(double amount, @NonNull Account from, @NonNull Account to) {
-        from.setMoney(BigDecimal.valueOf(from.getMoney()).subtract(BigDecimal.valueOf(amount)).doubleValue());
-        to.setMoney(BigDecimal.valueOf(to.getMoney()).add(BigDecimal.valueOf(amount)).doubleValue());
     }
 
     private boolean isInRange(

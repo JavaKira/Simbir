@@ -4,6 +4,7 @@ import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.admin.rent.NewRentAdminRequest;
 import com.github.javakira.simbir.admin.rent.RentEndRequest;
+import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.rent.Rent;
 import com.github.javakira.simbir.rent.RentDto;
 import com.github.javakira.simbir.rent.RentRepository;
@@ -25,6 +26,7 @@ public class AdminRentService {
     private final RentRepository repository;
     private final AccountRepository accountRepository;
     private final TransportRepository transportRepository;
+    private final PaymentService paymentService;
 
     public ResponseEntity<?> getRent(long rentId) {
         Optional<Rent> rentOptional = repository.findById(rentId);
@@ -100,7 +102,7 @@ public class AdminRentService {
         rent.setTimeEnd(LocalDateTime.now());
         rent.setFinalPrice(rent.getRentType().price(rent));
         //Taking off money
-        transferMoney(
+        paymentService.transferMoney(
                 rent.getFinalPrice(),
                 account,
                 transportOwner
@@ -160,11 +162,6 @@ public class AdminRentService {
                 .stream()
                 .filter(rent -> rent.getOwnerId().equals(ownerId))
                 .forEach(rent -> rawDelete(rent.getId()));
-    }
-
-    private void transferMoney(double amount, @NonNull Account from, @NonNull Account to) {
-        from.setMoney(BigDecimal.valueOf(from.getMoney()).subtract(BigDecimal.valueOf(amount)).doubleValue());
-        to.setMoney(BigDecimal.valueOf(to.getMoney()).add(BigDecimal.valueOf(amount)).doubleValue());
     }
 
     public void rawDelete(long id) {

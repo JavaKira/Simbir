@@ -3,11 +3,13 @@ package com.github.javakira.simbir.payment;
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -43,5 +45,10 @@ public class PaymentService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Only admin can replenish money for other accounts");
         }
+    }
+
+    public void transferMoney(double amount, @NonNull Account from, @NonNull Account to) {
+        from.setMoney(BigDecimal.valueOf(from.getMoney()).subtract(BigDecimal.valueOf(amount)).doubleValue());
+        to.setMoney(BigDecimal.valueOf(to.getMoney()).add(BigDecimal.valueOf(amount)).doubleValue());
     }
 }
