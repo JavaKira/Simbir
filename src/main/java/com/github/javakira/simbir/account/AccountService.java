@@ -61,7 +61,7 @@ public class AccountService {
         return ResponseEntity.ok(new AuthResponse(jwtToken));
     }
 
-    public ResponseEntity<?> update(Long id, UpdateRequest request) {
+    public ResponseEntity<?> update(long id, UpdateRequest request) {
         Optional<Account> accountOptional = repository.findByUsername(request.getUsername());
         if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id))
             return ResponseEntity
@@ -77,7 +77,7 @@ public class AccountService {
         accountOptional.get().setUsername(request.getUsername());
         accountOptional.get().setPassword(passwordEncoder.encode(request.getPassword()));
         repository.save(accountOptional.get());
-        return ResponseEntity.ok(AccountDto.from(accountOptional.get()));
+        return singIn(new AuthRequest(request.getUsername(), request.getPassword()));
     }
 
     public ResponseEntity<?> singOut(String token) {

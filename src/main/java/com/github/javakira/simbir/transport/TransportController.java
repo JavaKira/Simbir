@@ -20,7 +20,6 @@ public class TransportController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<?> addNew(@RequestBody TransportAddRequest transportAddRequest, HttpServletRequest request) {
-        //todo если запрос сделан неверно, то все по пизде идёт
         return jwtService.accessUser(request, userId -> service.addNew(transportAddRequest, userId));
     }
 

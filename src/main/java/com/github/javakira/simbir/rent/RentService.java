@@ -69,9 +69,6 @@ public class RentService {
 
         return ResponseEntity.ok(account.get().getRentHistory().stream().map(RentDto::from).toList());
     }
-
-
-    //TODO МОЖНО КОНКРЕТНО СОКРАТИТЬ КОЛИЧЕСТВО КОДА ЕСЛИ ВЫНЕСТИ ПОЛУЧЕНИЕ ТРАНСПОРТА В ОТДЕЛЬНЫЙ МЕТОД. НЕ ЕБУ КАК Я ЭТО СДЕЛАЮ НО ЭТО НУЖНО СДЕЛАТЬ
     public ResponseEntity<?> transportHistory(long transportId, long userId) {
         Optional<Transport> transport = transportRepository.findById(transportId);
         if (transport.isEmpty())
