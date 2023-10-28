@@ -18,26 +18,26 @@ public class AccountController {
     private final AccountService service;
     private final JwtService jwtService;
 
-    @Operation(summary = "Get data of current user")
+    @Operation(summary = "Получение данных о текущем аккаунте")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/Me")
     public ResponseEntity<?> me(HttpServletRequest request) {
         return jwtService.accessUser(request, service::accountInfo);
     }
 
-    @Operation(summary = "Get new jwt token")
+    @Operation(summary = "Получение нового jwt токена пользователя")
     @PostMapping("/SingIn")
     public ResponseEntity<?> singIn(@RequestBody AuthRequest request) {
         return service.singIn(request);
     }
 
-    @Operation(summary = "Register new account")
+    @Operation(summary = "Регистрация нового аккаунта")
     @PostMapping("/SingUp")
     public ResponseEntity<?> singUp(@RequestBody RegisterRequest request) {
         return service.singUp(request);
     }
 
-    @Operation(summary = "Logout from account")
+    @Operation(summary = "Выход из аккаунта")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/SingOut")
     public ResponseEntity<?> singOut(HttpServletRequest request) {
@@ -45,7 +45,7 @@ public class AccountController {
         return service.singOut(token.orElseThrow());
     }
 
-    @Operation(summary = "Update user data")
+    @Operation(summary = "Обновление своего аккаунта")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/Update")
     public ResponseEntity<?> update(HttpServletRequest request, @RequestBody UpdateRequest updateRequest) {

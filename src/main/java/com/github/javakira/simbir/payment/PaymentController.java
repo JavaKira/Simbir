@@ -18,7 +18,7 @@ public class PaymentController {
     private final JwtService jwtService;
     private final PaymentService paymentService;
 
-    @Operation(summary = "Adds 250 000 money on account with id accountId")
+    @Operation(summary = "Добавляет на баланс аккаунта с id={accountId} 250 000 денежных единиц")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Hesoyam/{accountId}")
     public ResponseEntity<?> hesoyam(HttpServletRequest request, @PathVariable long accountId) {

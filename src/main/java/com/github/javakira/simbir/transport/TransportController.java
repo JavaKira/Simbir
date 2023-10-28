@@ -16,27 +16,27 @@ public class TransportController {
     private final TransportService service;
     private final JwtService jwtService;
 
-    @Operation(summary = "Add new transport")
+    @Operation(summary = "Добавление нового транспорта")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping
     public ResponseEntity<?> addNew(@RequestBody TransportAddRequest transportAddRequest, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.addNew(transportAddRequest, userId));
     }
 
-    @Operation(summary = "Get transport data by id")
+    @Operation(summary = "Получение информации о транспорте по id")
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable long id) {
         return service.get(id);
     }
 
-    @Operation(summary = "Delete transport by id")
+    @Operation(summary = "Добавление нового транспорта")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable long id, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.delete(id, userId));
     }
 
-    @Operation(summary = "Update transport data")
+    @Operation(summary = "Изменение транспорта по id")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable long id, @RequestBody TransportUpdateRequest transportUpdateRequest, HttpServletRequest request) {
