@@ -20,16 +20,12 @@ public class AdminService {
 
     public ResponseEntity<?> checkAdmin(HttpServletRequest request, Function<Long, ResponseEntity<?>> adminConsumer) {
         Optional<String> jwt = jwtService.token(request);
-        if (jwt.isPresent()) {
-            Long userId = jwtService.extractId(jwt.get());
-            //Role role = jwtService.extractRole(jwt.get());
-            Role role = accountRepository.findById(userId).orElseThrow().getRole();
-            if (role != Role.admin)
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admin can use this endpoint");
+        long userId = jwtService.extractId(jwt.orElseThrow());
+        //todo Role role = jwtService.extractRole(jwt.get());
+        Role role = accountRepository.findById(userId).orElseThrow().getRole();
+        if (role != Role.admin)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admin can use this endpoint");
 
-            return adminConsumer.apply(userId);
-        } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+        return adminConsumer.apply(userId);
     }
 }

@@ -4,6 +4,7 @@ import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,6 +68,8 @@ public class RentService {
         return ResponseEntity.ok(account.get().getRentHistory().stream().map(RentDto::from).toList());
     }
 
+
+    //TODO МОЖНО КОНКРЕТНО СОКРАТИТЬ КОЛИЧЕСТВО КОДА ЕСЛИ ВЫНЕСТИ ПОЛУЧЕНИЕ ТРАНСПОРТА В ОТДЕЛЬНЫЙ МЕТОД. НЕ ЕБУ КАК Я ЭТО СДЕЛАЮ НО ЭТО НУЖНО СДЕЛАТЬ
     public ResponseEntity<?> transportHistory(long transportId, long userId) {
         Optional<Transport> transport = transportRepository.findById(transportId);
         if (transport.isEmpty())
@@ -147,6 +150,7 @@ public class RentService {
         Rent rent = rentOptional.get();
         Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
         Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
+        Account transportOwner = accountRepository.findById(transport.getOwnerId()).orElseThrow();
         //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());
         transport.setLatitude(rentEndRequest.getLat());
@@ -156,7 +160,11 @@ public class RentService {
         rent.setFinalPrice(rent.getRentType().price(rent));
         transport.setCanBeRented(true);
         //Taking off money
-        account.setMoney(BigDecimal.valueOf(account.getMoney()).subtract(BigDecimal.valueOf(rent.getFinalPrice())).doubleValue());
+        transferMoney(
+                rent.getFinalPrice(),
+                account,
+                transportOwner
+        );
         //Adding rent to rentHistory of account and transport
         account.getRentHistory().add(rent);
         transport.getRentHistory().add(rent);
@@ -165,6 +173,11 @@ public class RentService {
         accountRepository.save(account);
         transportRepository.save(transport);
         return ResponseEntity.ok(RentDto.from(rent));
+    }
+
+    private void transferMoney(double amount, @NonNull Account from, @NonNull Account to) {
+        from.setMoney(BigDecimal.valueOf(from.getMoney()).subtract(BigDecimal.valueOf(amount)).doubleValue());
+        to.setMoney(BigDecimal.valueOf(to.getMoney()).add(BigDecimal.valueOf(amount)).doubleValue());
     }
 
     private boolean isInRange(

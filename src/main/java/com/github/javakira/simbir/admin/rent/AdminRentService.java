@@ -9,6 +9,7 @@ import com.github.javakira.simbir.rent.RentDto;
 import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +91,7 @@ public class AdminRentService {
         Rent rent = rentOptional.get();
         Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
         Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
+        Account transportOwner = accountRepository.findById(transport.getOwnerId()).orElseThrow();
         //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());
         transport.setLatitude(rentEndRequest.getLat());
@@ -98,7 +100,11 @@ public class AdminRentService {
         rent.setTimeEnd(LocalDateTime.now());
         rent.setFinalPrice(rent.getRentType().price(rent));
         //Taking off money
-        account.setMoney(BigDecimal.valueOf(account.getMoney()).subtract(BigDecimal.valueOf(rent.getFinalPrice())).doubleValue());
+        transferMoney(
+                rent.getFinalPrice(),
+                account,
+                transportOwner
+        );
         //Adding rent to rentHistory of account and transport
         account.getRentHistory().add(rent);
         transport.getRentHistory().add(rent);
@@ -154,6 +160,11 @@ public class AdminRentService {
                 .stream()
                 .filter(rent -> rent.getOwnerId().equals(ownerId))
                 .forEach(rent -> rawDelete(rent.getId()));
+    }
+
+    private void transferMoney(double amount, @NonNull Account from, @NonNull Account to) {
+        from.setMoney(BigDecimal.valueOf(from.getMoney()).subtract(BigDecimal.valueOf(amount)).doubleValue());
+        to.setMoney(BigDecimal.valueOf(to.getMoney()).add(BigDecimal.valueOf(amount)).doubleValue());
     }
 
     public void rawDelete(long id) {
