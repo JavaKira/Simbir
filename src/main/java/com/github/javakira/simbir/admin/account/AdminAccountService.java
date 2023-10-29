@@ -6,8 +6,6 @@ import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.account.Role;
 import com.github.javakira.simbir.admin.rent.AdminRentService;
 import com.github.javakira.simbir.admin.transport.AdminTransportService;
-import com.github.javakira.simbir.rent.RentRepository;
-import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

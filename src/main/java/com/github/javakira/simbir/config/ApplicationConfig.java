@@ -1,7 +1,6 @@
 package com.github.javakira.simbir.config;
 
 import com.github.javakira.simbir.account.AccountRepository;
-import com.github.javakira.simbir.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

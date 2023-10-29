@@ -1,7 +1,6 @@
 package com.github.javakira.simbir.rent;
 
 import com.github.javakira.simbir.jwt.JwtService;
-import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

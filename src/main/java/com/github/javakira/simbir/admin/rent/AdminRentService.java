@@ -2,8 +2,6 @@ package com.github.javakira.simbir.admin.rent;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
-import com.github.javakira.simbir.admin.rent.NewRentAdminRequest;
-import com.github.javakira.simbir.admin.rent.RentEndRequest;
 import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.rent.Rent;
 import com.github.javakira.simbir.rent.RentDto;
@@ -11,13 +9,11 @@ import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.rent.RentService;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 

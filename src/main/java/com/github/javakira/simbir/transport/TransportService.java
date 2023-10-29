@@ -80,7 +80,12 @@ public class TransportService {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day");
 
-        Transport transport = transportOptional.get();
+        Transport transport = getTransport(request, transportOptional.orElseThrow());
+        repository.save(transport);
+        return ResponseEntity.ok(TransportDto.from(transport));
+    }
+
+    private static Transport getTransport(TransportUpdateRequest request, Transport transport) {
         transport.setCanBeRented(request.isCanBeRented());
         transport.setModel(request.getModel());
         transport.setColor(request.getColor());
@@ -90,7 +95,6 @@ public class TransportService {
         transport.setLongitude(request.getLongitude());
         transport.setMinutePrice(request.getMinutePrice());
         transport.setDayPrice(request.getDayPrice());
-        repository.save(transport);
-        return ResponseEntity.ok(TransportDto.from(transport));
+        return transport;
     }
 }

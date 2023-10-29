@@ -24,31 +24,29 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-                    authorizationManagerRequestMatcherRegistry
-                            .requestMatchers(
-                                    "/api/Account/SingIn",
-                                    "api/Account/SingUp",
-                                    "api/Rent/Transport",
-                                    "/v3/api-docs",
-                                    "/v3/api-docs/**",
-                                    "/configuration/ui",
-                                    "/swagger-resources/**",
-                                    "/configuration/security",
-                                    "/swagger-ui/**",
-                                    "/webjars/**")
-                            .permitAll()
-                            .requestMatchers(
-                                    HttpMethod.GET,
-                                    "api/Transport/**"
-                            )
-                            .permitAll()
-                            .anyRequest()
-                            .authenticated();
-                })
-                .sessionManagement(httpSecuritySessionManagementConfigurer -> {
-                    httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                })
+                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
+                        authorizationManagerRequestMatcherRegistry
+                        .requestMatchers(
+                                "/api/Account/SingIn",
+                                "api/Account/SingUp",
+                                "api/Rent/Transport",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/configuration/ui",
+                                "/swagger-resources/**",
+                                "/configuration/security",
+                                "/swagger-ui/**",
+                                "/webjars/**")
+                        .permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "api/Transport/**"
+                        )
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
+                .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

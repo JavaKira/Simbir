@@ -1,7 +1,6 @@
 package com.github.javakira.simbir.rent;
 
 import com.github.javakira.simbir.transport.SearchTransportType;
-import com.github.javakira.simbir.transport.TransportType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
