@@ -101,7 +101,7 @@ public class RentService {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Transport with id %d cant be rented".formatted(transportId));
 
-        if (!transport.get().isRented())
+        if (transport.get().isRented())
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Transport with id %d is busy".formatted(transportId));
