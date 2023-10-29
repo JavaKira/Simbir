@@ -18,12 +18,10 @@ public class Transport {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-    //TODO НУЖНО РАЗОБРАТЬСЯ С NULLABLE И NONULLABLE
     @Column(nullable = false)
     private Long ownerId;
     @OneToMany
     List<Rent> rentHistory;
-
     private boolean rented;
     @Column(nullable = false)
     private boolean canBeRented;

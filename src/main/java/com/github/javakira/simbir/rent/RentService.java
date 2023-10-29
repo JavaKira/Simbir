@@ -6,13 +6,11 @@ import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportDto;
 import com.github.javakira.simbir.transport.TransportRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -116,7 +114,7 @@ public class RentService {
 
         double unitPrice;
         try {
-            unitPrice = request.getRentType().priceUnit(transport.get());
+            unitPrice = priceUnit(transport.get(), request.getRentType());
         } catch (Exception e) {
             return cantBeRented(transportId, request.getRentType());
         }
@@ -163,7 +161,7 @@ public class RentService {
         //Closing rent
         rent.setRentState(Rent.RentState.ended);
         rent.setTimeEnd(LocalDateTime.now());
-        rent.setFinalPrice(rent.getRentType().price(rent));
+        rent.setFinalPrice(price(rent));
         transport.setRented(false);
         //Taking off money
         paymentService.transferMoney(
@@ -181,6 +179,14 @@ public class RentService {
         return ResponseEntity.ok(RentDto.from(rent));
     }
 
+    public double price(Rent rent) {
+        return rent.getRentType().price(rent);
+    }
+
+    public double priceUnit(Transport transport, RentType rentType) throws IllegalArgumentException {
+        return rentType.priceUnit(transport);
+    }
+
     private boolean isInRange(
             double pointLongitude,
             double pointLatitude,
@@ -196,7 +202,7 @@ public class RentService {
         return transport.isCanBeRented();
     }
 
-    private ResponseEntity<?> cantBeRented(long transportId, Rent.RentType rentType) {
+    private ResponseEntity<?> cantBeRented(long transportId, RentType rentType) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("Transport with id %d cant be rented with rentType %s".formatted(transportId, rentType));

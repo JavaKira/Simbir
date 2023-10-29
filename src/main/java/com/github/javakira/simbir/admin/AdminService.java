@@ -21,7 +21,6 @@ public class AdminService {
     public ResponseEntity<?> checkAdmin(HttpServletRequest request, Function<Long, ResponseEntity<?>> adminConsumer) {
         Optional<String> jwt = jwtService.token(request);
         long userId = jwtService.extractId(jwt.orElseThrow());
-        //todo Role role = jwtService.extractRole(jwt.get());
         Role role = accountRepository.findById(userId).orElseThrow().getRole();
         if (role != Role.admin)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admin can use this endpoint");

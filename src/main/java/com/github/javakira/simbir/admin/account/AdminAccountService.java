@@ -100,7 +100,6 @@ public class AdminAccountService {
                     .status(HttpStatus.NOT_FOUND)
                     .body("Account with id %d doesnt exist".formatted(id));
 
-        //todo можно было и связностью в JPA это сделать
         rentService.deleteRentByOwner(id);
         transportService.deleteTransportByOwner(id);
         accountRepository.delete(accountOptional.get());

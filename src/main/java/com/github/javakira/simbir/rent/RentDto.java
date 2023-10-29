@@ -16,7 +16,7 @@ public class RentDto {
     long ownerId;
     long transportId;
     Rent.RentState state;
-    Rent.RentType type;
+    RentType type;
     private LocalDateTime timeStart;
     private LocalDateTime timeEnd;
     private double priceOfUnit;

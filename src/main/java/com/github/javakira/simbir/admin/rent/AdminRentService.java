@@ -8,6 +8,7 @@ import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.rent.Rent;
 import com.github.javakira.simbir.rent.RentDto;
 import com.github.javakira.simbir.rent.RentRepository;
+import com.github.javakira.simbir.rent.RentService;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.NonNull;
@@ -24,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminRentService {
     private final RentRepository repository;
+    private final RentService rentService;
     private final AccountRepository accountRepository;
     private final TransportRepository transportRepository;
     private final PaymentService paymentService;
@@ -110,7 +112,7 @@ public class AdminRentService {
         //Closing rent
         rent.setRentState(Rent.RentState.ended);
         rent.setTimeEnd(LocalDateTime.now());
-        rent.setFinalPrice(rent.getRentType().price(rent));
+        rent.setFinalPrice(rentService.price(rent));
         //Taking off money
         paymentService.transferMoney(
                 rent.getFinalPrice(),

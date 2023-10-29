@@ -1,6 +1,6 @@
 package com.github.javakira.simbir.admin.rent;
 
-import com.github.javakira.simbir.rent.Rent;
+import com.github.javakira.simbir.rent.RentType;
 import lombok.*;
 
 @Data
@@ -18,6 +18,6 @@ public class NewRentAdminRequest {
     @NonNull
     private Double priceOfUnit;
     @NonNull
-    private Rent.RentType rentType;
+    private RentType rentType;
     private Double finalPrice;
 }
