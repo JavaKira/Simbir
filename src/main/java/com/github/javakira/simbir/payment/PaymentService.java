@@ -51,4 +51,9 @@ public class PaymentService {
         from.setMoney(BigDecimal.valueOf(from.getMoney()).subtract(BigDecimal.valueOf(amount)).doubleValue());
         to.setMoney(BigDecimal.valueOf(to.getMoney()).add(BigDecimal.valueOf(amount)).doubleValue());
     }
+
+    public void updateTransferMoney(double old, double newAmount, @NonNull Account from, @NonNull Account to) {
+        transferMoney(-old, from, to);
+        transferMoney(newAmount, from, to);
+    }
 }

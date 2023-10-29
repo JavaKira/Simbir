@@ -159,6 +159,11 @@ public class AdminRentService {
         if (request.getTimeEnd() != null) {
             rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
             rent.setRentState(Rent.RentState.ended);
+
+            Account transportOwner = accountRepository.findById(transport.get().getOwnerId()).orElseThrow();
+            Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
+            paymentService.updateTransferMoney(rentOptional.get().getFinalPrice(), request.getFinalPrice(), account,
+                    transportOwner);
         }
 
         repository.save(rent);
