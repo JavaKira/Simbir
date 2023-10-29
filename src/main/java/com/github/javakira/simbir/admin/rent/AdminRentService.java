@@ -58,7 +58,13 @@ public class AdminRentService {
         return ResponseEntity.ok(transport.get().getRentHistory().stream().map(RentDto::from).toList());
     }
 
-    public ResponseEntity<RentDto> newRent(NewRentAdminRequest request) {
+    public ResponseEntity<?> newRent(NewRentAdminRequest request) {
+        Optional<Transport> transport = transportRepository.findById(request.getTransportId());
+        if (transport.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(request.getTransportId()));
+
         Rent rent = Rent
                 .builder()
                 .rentState(Rent.RentState.opened)
@@ -70,9 +76,12 @@ public class AdminRentService {
                 .priceOfUnit(request.getPriceOfUnit())
                 .finalPrice(request.getFinalPrice())
                 .build();
-
-        if (request.getTimeEnd() != null)
+        transport.get().setRented(true);
+        if (request.getTimeEnd() != null) {
             rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
+            rent.setRentState(Rent.RentState.ended);
+            transport.get().setRented(false);
+        }
 
         repository.save(rent);
         return ResponseEntity.ok(RentDto.from(rent));
@@ -97,6 +106,7 @@ public class AdminRentService {
         //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());
         transport.setLatitude(rentEndRequest.getLat());
+        transport.setRented(false);
         //Closing rent
         rent.setRentState(Rent.RentState.ended);
         rent.setTimeEnd(LocalDateTime.now());
@@ -118,6 +128,12 @@ public class AdminRentService {
     }
 
     public ResponseEntity<?> update(UpdateRentAdminRequest request, long id) {
+        Optional<Transport> transport = transportRepository.findById(request.getTransportId());
+        if (transport.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Transport with id %d doesnt exist".formatted(request.getTransportId()));
+
         Optional<Rent> rentOptional = repository.findById(id);
         if (rentOptional.isEmpty())
             return ResponseEntity
@@ -138,8 +154,10 @@ public class AdminRentService {
                 .finalPrice(request.getFinalPrice())
                 .build();
 
-        if (request.getTimeEnd() != null)
+        if (request.getTimeEnd() != null) {
             rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
+            rent.setRentState(Rent.RentState.ended);
+        }
 
         repository.save(rent);
         return ResponseEntity.ok(RentDto.from(rent));

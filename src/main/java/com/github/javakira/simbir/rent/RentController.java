@@ -2,6 +2,7 @@ package com.github.javakira.simbir.rent;
 
 import com.github.javakira.simbir.jwt.JwtService;
 import com.github.javakira.simbir.transport.Transport;
+import com.github.javakira.simbir.transport.TransportDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ public class RentController {
 
     @Operation(summary = "Получение транспорта доступного для аренды по параметрам")
     @GetMapping("/Transport")
-    public ResponseEntity<List<Transport>> search(RentSearchParams params) {
+    public ResponseEntity<List<TransportDto>> search(RentSearchParams params) {
         return ResponseEntity.ok(service.findAvailable(params));
     }
 

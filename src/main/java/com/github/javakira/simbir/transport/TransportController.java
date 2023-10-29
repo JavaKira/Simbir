@@ -29,7 +29,7 @@ public class TransportController {
         return service.get(id);
     }
 
-    @Operation(summary = "Добавление нового транспорта")
+    @Operation(summary = "Удаление транспорта по id")
     @SecurityRequirement(name = "Bearer Authentication")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable long id, HttpServletRequest request) {

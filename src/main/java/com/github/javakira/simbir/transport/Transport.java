@@ -23,6 +23,8 @@ public class Transport {
     private Long ownerId;
     @OneToMany
     List<Rent> rentHistory;
+
+    private boolean rented;
     @Column(nullable = false)
     private boolean canBeRented;
     @Column(nullable = false)

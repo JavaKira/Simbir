@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class TransportDto {
     long id;
     long ownerId;
+    private boolean rented;
     private boolean canBeRented;
     private TransportType transportType;
     private String model;
@@ -28,6 +29,7 @@ public class TransportDto {
                 .builder()
                 .id(transport.getId())
                 .ownerId(transport.getOwnerId())
+                .rented(transport.isRented())
                 .canBeRented(transport.isCanBeRented())
                 .model(transport.getModel())
                 .color(transport.getColor())

@@ -4,6 +4,7 @@ import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
 import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.transport.Transport;
+import com.github.javakira.simbir.transport.TransportDto;
 import com.github.javakira.simbir.transport.TransportRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class RentService {
     private final TransportRepository transportRepository;
     private final AccountRepository accountRepository;
 
-    public List<Transport> findAvailable(RentSearchParams params) {
+    public List<TransportDto> findAvailable(RentSearchParams params) {
         List<Transport> transports = transportRepository.findAll();
 
         return transports
@@ -40,6 +41,7 @@ public class RentService {
                                 params.getRadius()
                         )
                 )
+                .map(TransportDto::from)
                 .toList();
     }
 
@@ -101,6 +103,11 @@ public class RentService {
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Transport with id %d cant be rented".formatted(transportId));
 
+        if (!transport.get().isRented())
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Transport with id %d is busy".formatted(transportId));
+
         Optional<Account> accountOptional = accountRepository.findById(userId);
         if (accountOptional.orElseThrow().getMoney() < 0)
             return ResponseEntity
@@ -123,7 +130,7 @@ public class RentService {
                 .priceOfUnit(unitPrice)
                 .transportId(transportId)
                 .build();
-        transport.get().setCanBeRented(false);
+        transport.get().setRented(true);
         repository.save(rent);
         transportRepository.save(transport.get());
         return ResponseEntity.ok(RentDto.from(rent));
@@ -157,7 +164,7 @@ public class RentService {
         rent.setRentState(Rent.RentState.ended);
         rent.setTimeEnd(LocalDateTime.now());
         rent.setFinalPrice(rent.getRentType().price(rent));
-        transport.setCanBeRented(true);
+        transport.setRented(false);
         //Taking off money
         paymentService.transferMoney(
                 rent.getFinalPrice(),
