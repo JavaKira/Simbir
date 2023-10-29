@@ -89,7 +89,7 @@ public class RentService {
         if (transport.isEmpty())
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(userId));
+                    .body("Transport with id %d doesnt exist".formatted(transportId));
 
         if (transport.get().getOwnerId().equals(userId))
             return ResponseEntity
