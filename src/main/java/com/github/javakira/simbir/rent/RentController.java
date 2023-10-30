@@ -20,42 +20,42 @@ public class RentController {
 
     @Operation(summary = "Получение транспорта доступного для аренды по параметрам")
     @GetMapping("/Transport")
-    public ResponseEntity<List<TransportDto>> search(RentSearchParams params) {
-        return ResponseEntity.ok(service.findAvailable(params));
+    public List<TransportDto> search(RentSearchParams params) {
+        return service.findAvailable(params);
     }
 
     @Operation(summary = "Получение информации об аренде по id")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("{rentId}")
-    public ResponseEntity<?> rentInfo(@PathVariable Long rentId, HttpServletRequest request) {
+    public RentDto rentInfo(@PathVariable Long rentId, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.rentInfo(rentId, userId));
     }
 
     @Operation(summary = "Получение истории аренд текущего аккаунта")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/MyHistory")
-    public ResponseEntity<?> rentHistory(HttpServletRequest request) {
+    public List<RentDto> rentHistory(HttpServletRequest request) {
         return jwtService.accessUser(request, service::accountHistory);
     }
 
     @Operation(summary = "Получение истории аренд текущего аккаунта")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")
-    public ResponseEntity<?> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {
+    public List<RentDto> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.transportHistory(transportId, userId));
     }
 
     @Operation(summary = "Аренда транспорта в личное пользование")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/New/{transportId}")
-    public ResponseEntity<?> rent(@PathVariable Long transportId, @RequestBody NewRentRequest newRentRequest, HttpServletRequest request) {
+    public RentDto rent(@PathVariable Long transportId, @RequestBody NewRentRequest newRentRequest, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.rent(newRentRequest, transportId, userId));
     }
 
     @Operation(summary = "Завершение аренды транспорта по id аренды")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/End/{rentId}")
-    public ResponseEntity<?> end(@PathVariable Long rentId, @RequestBody RentEndRequest rentEndRequest, HttpServletRequest request) {
+    public RentDto end(@PathVariable Long rentId, @RequestBody RentEndRequest rentEndRequest, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.end(rentId, rentEndRequest, userId));
     }
 }
