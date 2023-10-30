@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Service
@@ -79,6 +80,14 @@ public class JwtServiceImpl implements JwtService {
     public <T> T accessUser(HttpServletRequest request, Function<Long, T> userConsumer) {
         long userId = extractId(token(request).orElseThrow());
         return userConsumer.apply(userId);
+    }
+
+    @Override
+    public void accessUserVoid(HttpServletRequest request, Consumer<Long> userConsumer) {
+        accessUser(request, userId -> {
+            userConsumer.accept(userId);
+            return null;
+        });
     }
 
     private boolean isTokenExpired(String token) {

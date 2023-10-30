@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface JwtService {
@@ -22,4 +23,6 @@ public interface JwtService {
     String generateToken(Account account);
 
     <T> T accessUser(HttpServletRequest request, Function<Long, T> userConsumer);
+
+    void accessUserVoid(HttpServletRequest request, Consumer<Long> userConsumer);
 }

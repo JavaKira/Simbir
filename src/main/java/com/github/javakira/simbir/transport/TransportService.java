@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -12,12 +13,12 @@ import java.util.Optional;
 public class TransportService {
     private final TransportRepository repository;
 
-    public ResponseEntity<?> addNew(TransportAddRequest request, long ownerId) {
+    public TransportDto addNew(TransportAddRequest request, long ownerId) {
         if (request.isCanBeRented() && request.getMinutePrice() == null && request.getDayPrice() == null)
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day");
-
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day"
+            );
 
         Transport transport = Transport
                 .builder()
@@ -34,58 +35,47 @@ public class TransportService {
                 .dayPrice(request.getDayPrice())
                 .build();
         repository.save(transport);
-        return ResponseEntity.ok(TransportDto.from(transport));
+        return TransportDto.from(transport);
     }
 
-    public ResponseEntity<?> delete(long transportId, long userId) {
-        Optional<Transport> transport = repository.findById(transportId);
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(transportId));
+    public void delete(long transportId, long userId) {
+        Transport transport = transport(transportId);
 
-        if (!transport.get().getOwnerId().equals(userId))
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Only owner of transport with id %d can delete him".formatted(transportId));
+        if (!transport.getOwnerId().equals(userId))
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Only owner of transport with id %d can delete him".formatted(transportId)
+            );
 
-        repository.delete(transport.get());
-        return new ResponseEntity<>(HttpStatus.OK);
+        repository.delete(transport);
     }
 
-    public ResponseEntity<?> get(Long id) {
-        Optional<Transport> transport = repository.findById(id);
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(id));
-
-        return ResponseEntity.ok(TransportDto.from(transport.get()));
+    public TransportDto transportInfo(Long id) {
+        return TransportDto.from(transport(id));
     }
 
-    public ResponseEntity<?> update(long id, long userId, TransportUpdateRequest request) {
-        Optional<Transport> transportOptional = repository.findById(id);
-        if (transportOptional.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(id));
+    public TransportDto update(long id, long userId, TransportUpdateRequest request) {
+        Transport transport = transport(id);
 
-        if (!transportOptional.get().getOwnerId().equals(userId))
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("Only owner of transportOptional with id %d can update him".formatted(id));
+        if (!transport.getOwnerId().equals(userId))
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Only owner of transport with id %d can update him".formatted(id)
+            );
 
         if (request.isCanBeRented() && request.getMinutePrice() == null && request.getDayPrice() == null)
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Transport cannot be available for rent without specifying the rental price. Set 'canBeRented' to false, or set the rental price per minute or per day"
+            );
 
-        Transport transport = getTransport(request, transportOptional.orElseThrow());
+        updateTransport(request, transport);
         repository.save(transport);
-        return ResponseEntity.ok(TransportDto.from(transport));
+        return TransportDto.from(transport);
     }
 
-    private static Transport getTransport(TransportUpdateRequest request, Transport transport) {
+    //Intellij idea idea
+    private static void updateTransport(TransportUpdateRequest request, Transport transport) {
         transport.setCanBeRented(request.isCanBeRented());
         transport.setModel(request.getModel());
         transport.setColor(request.getColor());
@@ -95,6 +85,16 @@ public class TransportService {
         transport.setLongitude(request.getLongitude());
         transport.setMinutePrice(request.getMinutePrice());
         transport.setDayPrice(request.getDayPrice());
-        return transport;
+    }
+
+    public Transport transport(long id) {
+        Optional<Transport> transportOptional = repository.findById(id);
+        if (transportOptional.isEmpty())
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Transport with id %d doesnt exist".formatted(id)
+            );
+
+        return transportOptional.get();
     }
 }

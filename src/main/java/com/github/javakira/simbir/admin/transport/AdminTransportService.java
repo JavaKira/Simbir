@@ -3,10 +3,12 @@ package com.github.javakira.simbir.admin.transport;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportDto;
 import com.github.javakira.simbir.transport.TransportRepository;
+import com.github.javakira.simbir.transport.TransportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,38 +17,33 @@ import java.util.Optional;
 @RequiredArgsConstructor
 
 public class AdminTransportService {
+    private final TransportService service;
     private final TransportRepository repository;
 
-    public ResponseEntity<?> transports(GetTransportsRequest request) {
+    public List<Long> transports(GetTransportsRequest request) {
         if (request.getStart() < 0 || request.getCount() < 0)
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("'start' and 'count' must be > 0");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "'start' and 'count' must be > 0"
+            );
 
         List<Transport> transports = repository.findAll();
         transports = transports
                 .stream()
                 .filter(transport -> request.getSearchTransportType().fits(transport.getTransportType()))
                 .toList();
-        return ResponseEntity.ok(transports
+        return transports
                 .subList(Math.min(request.getStart(), transports.size()), Math.min(request.getStart() + request.getCount(), transports.size()))
                 .stream()
                 .map(Transport::getId)
-                .toList()
-        );
+                .toList();
     }
 
-    public ResponseEntity<?> transportInfo(long id) {
-        Optional<Transport> transport = repository.findById(id);
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(id));
-
-        return ResponseEntity.ok(TransportDto.from(transport.get()));
+    public TransportDto transportInfo(long id) {
+        return TransportDto.from(service.transport(id));
     }
 
-    public ResponseEntity<TransportDto> registerTransport(RegisterTransportByAdminRequest request) {
+    public TransportDto registerTransport(RegisterTransportByAdminRequest request) {
         Transport transport = Transport
                 .builder()
                 .ownerId(request.getOwnerId())
@@ -62,15 +59,11 @@ public class AdminTransportService {
                 .longitude(request.getLongitude())
                 .build();
         repository.save(transport);
-        return ResponseEntity.ok(TransportDto.from(transport));
+        return TransportDto.from(transport);
     }
 
-    public ResponseEntity<?> updateTransport(long id, UpdateTransportByAdminRequest request) {
-        Optional<Transport> old = repository.findById(id);
-        if (old.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(id));
+    public TransportDto updateTransport(long id, UpdateTransportByAdminRequest request) {
+        Transport old = service.transport(id);
 
         Transport transport = Transport
                 .builder()
@@ -85,22 +78,15 @@ public class AdminTransportService {
                 .transportType(request.getTransportType())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
-                .rentHistory(old.get().getRentHistory())
-                .id(old.get().getId())
+                .rentHistory(old.getRentHistory())
+                .id(old.getId())
                 .build();
         repository.save(transport);
-        return ResponseEntity.ok(TransportDto.from(transport));
+        return TransportDto.from(transport);
     }
 
-    public ResponseEntity<?> deleteTransport(long id) {
-        Optional<Transport> transport = repository.findById(id);
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(id));
-
-        repository.delete(transport.get());
-        return new ResponseEntity<>(HttpStatus.OK);
+    public void deleteTransport(long id) {
+        repository.delete(service.transport(id));
     }
 
     public void deleteTransportByOwner(long ownerId) {
