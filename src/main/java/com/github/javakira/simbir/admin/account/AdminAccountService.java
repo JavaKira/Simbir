@@ -9,6 +9,7 @@ import com.github.javakira.simbir.admin.transport.AdminTransportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class AdminAccountService {
     private final AccountRepository accountRepository;
     private final AdminRentService rentService;
+    private final PasswordEncoder passwordEncoder;
     private final AdminTransportService transportService;
 
     public ResponseEntity<?> accounts(GetAccountsRequest request) {
@@ -57,7 +59,7 @@ public class AdminAccountService {
                 .builder()
                 .role(request.isAdmin() ? Role.admin : Role.user)
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .money(request.getBalance())
                 .build();
         accountRepository.save(account);
