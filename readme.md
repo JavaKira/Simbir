@@ -22,3 +22,7 @@
 }`
 
 [Swagger UI](http://localhost:8080/swagger-ui/index.html)
+
+# Отклонения от ТЗ
+
+Эндпойнты `GET /api/Rent/MyHistory`, `GET /api/Rent/TransportHistory/{transportId}` и их версии в админ контролере возращают только завершенные аренды. Для открытых аренд были добавлены `GET /api/Rent/MyRents` и `GET /api/Admin/UserRents/{id}`
