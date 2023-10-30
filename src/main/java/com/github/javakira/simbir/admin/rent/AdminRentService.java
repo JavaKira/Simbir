@@ -2,6 +2,7 @@ package com.github.javakira.simbir.admin.rent;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
+import com.github.javakira.simbir.account.AccountService;
 import com.github.javakira.simbir.payment.PaymentService;
 import com.github.javakira.simbir.rent.Rent;
 import com.github.javakira.simbir.rent.RentDto;
@@ -9,59 +10,52 @@ import com.github.javakira.simbir.rent.RentRepository;
 import com.github.javakira.simbir.rent.RentService;
 import com.github.javakira.simbir.transport.Transport;
 import com.github.javakira.simbir.transport.TransportRepository;
+import com.github.javakira.simbir.transport.TransportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AdminRentService {
     private final RentRepository repository;
+    private final AccountService accountService;
+    private final TransportService transportService;
     private final RentService rentService;
     private final AccountRepository accountRepository;
     private final TransportRepository transportRepository;
     private final PaymentService paymentService;
 
-    public ResponseEntity<?> getRent(long rentId) {
-        Optional<Rent> rentOptional = repository.findById(rentId);
-        if (rentOptional.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Rent with id %d doesnt exist".formatted(rentId));
-
-        return ResponseEntity.ok(RentDto.from(rentOptional.get()));
+    public RentDto rentInfo(long rentId) {
+        return RentDto.from(rentService.rent(rentId));
     }
 
-    public ResponseEntity<?> userHistory(long userId) {
-        Optional<Account> account = accountRepository.findById(userId);
-        if (account.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Account with id %d doesnt exist".formatted(userId));
-
-        return ResponseEntity.ok(account.get().getRentHistory().stream().map(RentDto::from).toList());
+    public List<RentDto> userHistory(long userId) {
+        return accountService
+                .account(userId)
+                .getRentHistory()
+                .stream()
+                .map(RentDto::from)
+                .toList();
     }
 
-    public ResponseEntity<?> transportHistory(Long transportId) {
-        Optional<Transport> transport = transportRepository.findById(transportId);
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(transportId));
-
-        return ResponseEntity.ok(transport.get().getRentHistory().stream().map(RentDto::from).toList());
+    public List<RentDto> transportHistory(long transportId) {
+        return transportService
+                .transport(transportId)
+                .getRentHistory()
+                .stream()
+                .map(RentDto::from)
+                .toList();
     }
 
-    public ResponseEntity<?> newRent(NewRentAdminRequest request) {
-        Optional<Transport> transport = transportRepository.findById(request.getTransportId());
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(request.getTransportId()));
+    public RentDto newRent(NewRentAdminRequest request) {
+        Transport transport = transportService.transport(request.getTransportId());
 
         Rent rent = Rent
                 .builder()
@@ -74,33 +68,29 @@ public class AdminRentService {
                 .priceOfUnit(request.getPriceOfUnit())
                 .finalPrice(request.getFinalPrice())
                 .build();
-        transport.get().setRented(true);
+        transport.setRented(true);
         if (request.getTimeEnd() != null) {
             rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
             rent.setRentState(Rent.RentState.ended);
-            transport.get().setRented(false);
+            transport.setRented(false);
         }
 
         repository.save(rent);
-        return ResponseEntity.ok(RentDto.from(rent));
+        return RentDto.from(rent);
     }
 
-    public ResponseEntity<?> endRent(long id, RentEndRequest rentEndRequest) {
-        Optional<Rent> rentOptional = repository.findById(id);
-        if (rentOptional.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Rent with id %d doesnt exist".formatted(id));
+    public RentDto endRent(long id, RentEndRequest rentEndRequest) {
+        Rent rent = rentService.rent(id);
 
-        if (rentOptional.get().getRentState() == Rent.RentState.ended)
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Rent with id %d already ended".formatted(id));
+        if (rent.getRentState() == Rent.RentState.ended)
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Rent with id %d already ended".formatted(id)
+            );
 
-        Rent rent = rentOptional.get();
-        Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
-        Transport transport = transportRepository.findById(rentOptional.get().getTransportId()).orElseThrow();
-        Account transportOwner = accountRepository.findById(transport.getOwnerId()).orElseThrow();
+        Account account = accountService.account(rent.getOwnerId());
+        Transport transport = transportService.transport(rent.getTransportId());
+        Account transportOwner = accountService.account(transport.getOwnerId());
         //Updating Transport location to rent end location
         transport.setLongitude(rentEndRequest.getLongitude());
         transport.setLatitude(rentEndRequest.getLat());
@@ -122,26 +112,17 @@ public class AdminRentService {
         repository.save(rent);
         accountRepository.save(account);
         transportRepository.save(transport);
-        return ResponseEntity.ok(RentDto.from(rent));
+        return RentDto.from(rent);
     }
 
-    public ResponseEntity<?> update(UpdateRentAdminRequest request, long id) {
-        Optional<Transport> transport = transportRepository.findById(request.getTransportId());
-        if (transport.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Transport with id %d doesnt exist".formatted(request.getTransportId()));
-
-        Optional<Rent> rentOptional = repository.findById(id);
-        if (rentOptional.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Rent with id %d doesnt exist".formatted(id));
+    public RentDto update(UpdateRentAdminRequest request, long id) {
+        Transport transport = transportService.transport(request.getTransportId());
+        Rent oldRent = rentService.rent(id);
 
         Rent rent = Rent
                 .builder()
                 .id(id)
-                .ownerId(rentOptional.get().getOwnerId())
+                .ownerId(oldRent.getOwnerId())
                 .rentState(Rent.RentState.opened)
                 .transportId(request.getTransportId())
                 .timeStart(LocalDateTime.parse(request.getTimeStart()))
@@ -156,25 +137,19 @@ public class AdminRentService {
             rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
             rent.setRentState(Rent.RentState.ended);
 
-            Account transportOwner = accountRepository.findById(transport.get().getOwnerId()).orElseThrow();
+            //todo удалить нах отсюдава
+            Account transportOwner = accountRepository.findById(transport.getOwnerId()).orElseThrow();
             Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
-            paymentService.updateTransferMoney(rentOptional.get().getFinalPrice(), request.getFinalPrice(), account,
+            paymentService.updateTransferMoney(oldRent.getFinalPrice(), request.getFinalPrice(), account,
                     transportOwner);
         }
 
         repository.save(rent);
-        return ResponseEntity.ok(RentDto.from(rent));
+        return RentDto.from(rent);
     }
 
-    public ResponseEntity<?> delete(long id) {
-        Optional<Rent> rentOptional = repository.findById(id);
-        if (rentOptional.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Rent with id %d doesnt exist".formatted(id));
-
+    public void delete(long id) {
         rawDelete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public void deleteRentByOwner(long ownerId) {
@@ -186,13 +161,13 @@ public class AdminRentService {
     }
 
     public void rawDelete(long id) {
-        Optional<Rent> rentOptional = repository.findById(id);
-        Optional<Account> account = accountRepository.findById(rentOptional.orElseThrow().getOwnerId());
-        Optional<Transport> transport = transportRepository.findById(rentOptional.get().getTransportId());
-        account.orElseThrow().getRentHistory().removeIf(rent -> rent.getId().equals(id));
-        transport.orElseThrow().getRentHistory().removeIf(rent -> rent.getId().equals(id));
-        accountRepository.save(account.get());
-        transportRepository.save(transport.get());
-        repository.delete(rentOptional.get());
+        Rent rent = rentService.rent(id);
+        Account account = accountService.account(rent.getOwnerId());
+        Transport transport = transportService.transport(rent.getTransportId());
+        account.getRentHistory().removeIf(rent1 -> rent.getId().equals(id));
+        transport.getRentHistory().removeIf(rent1 -> rent.getId().equals(id));
+        accountRepository.save(account);
+        transportRepository.save(transport);
+        repository.delete(rent);
     }
 }
