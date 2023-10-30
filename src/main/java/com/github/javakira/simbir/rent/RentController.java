@@ -38,7 +38,7 @@ public class RentController {
         return jwtService.accessUser(request, service::accountHistory);
     }
 
-    @Operation(summary = "Получение истории аренд текущего аккаунта")
+    @Operation(summary = "Получение истории аренд транспорта")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")
     public List<RentDto> transportHistory(@PathVariable Long transportId, HttpServletRequest request) {

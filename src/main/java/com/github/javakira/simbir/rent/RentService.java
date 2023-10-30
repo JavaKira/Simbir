@@ -35,6 +35,7 @@ public class RentService {
                 .stream()
                 .filter(transport -> params.getType().fits(transport.getTransportType()))
                 .filter(this::canBeRented)
+                .filter(transport -> !transport.isRented())
                 .filter(transport ->
                         isInRange(
                                 transport.getLongitude(),

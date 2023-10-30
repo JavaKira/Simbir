@@ -64,7 +64,7 @@ public class AdminAccountService {
                 .id(id)
                 .role(request.isAdmin() ? Role.admin : Role.user)
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .money(request.getBalance())
                 .rentHistory(oldAccount.getRentHistory())
                 .build();

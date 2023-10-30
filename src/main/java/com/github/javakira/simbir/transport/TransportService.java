@@ -50,7 +50,7 @@ public class TransportService {
         repository.delete(transport);
     }
 
-    public TransportDto transportInfo(Long id) {
+    public TransportDto transportInfo(long id) {
         return TransportDto.from(transport(id));
     }
 
