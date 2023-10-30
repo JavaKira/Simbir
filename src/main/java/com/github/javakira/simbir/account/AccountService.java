@@ -76,7 +76,7 @@ public class AccountService {
         jwtService.banToken(token);
     }
 
-    Account account(long id) {
+    public Account account(long id) {
         Optional<Account> accountOptional = repository.findById(id);
         if (accountOptional.isEmpty())
             throw new ResponseStatusException(
