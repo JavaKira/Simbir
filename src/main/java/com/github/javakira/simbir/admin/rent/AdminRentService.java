@@ -116,7 +116,6 @@ public class AdminRentService {
     }
 
     public RentDto update(UpdateRentAdminRequest request, long id) {
-        Transport transport = transportService.transport(request.getTransportId());
         Rent oldRent = rentService.rent(id);
 
         Rent rent = Rent
@@ -136,12 +135,6 @@ public class AdminRentService {
         if (request.getTimeEnd() != null) {
             rent.setTimeEnd(LocalDateTime.parse(request.getTimeEnd()));
             rent.setRentState(Rent.RentState.ended);
-
-            //todo удалить нах отсюдава
-            Account transportOwner = accountRepository.findById(transport.getOwnerId()).orElseThrow();
-            Account account = accountRepository.findById(rent.getOwnerId()).orElseThrow();
-            paymentService.updateTransferMoney(oldRent.getFinalPrice(), request.getFinalPrice(), account,
-                    transportOwner);
         }
 
         repository.save(rent);
