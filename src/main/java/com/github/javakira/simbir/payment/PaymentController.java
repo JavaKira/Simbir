@@ -21,7 +21,7 @@ public class PaymentController {
     @Operation(summary = "Добавляет на баланс аккаунта с id={accountId} 250 000 денежных единиц")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/Hesoyam/{accountId}")
-    public ResponseEntity<?> hesoyam(HttpServletRequest request, @PathVariable long accountId) {
-        return jwtService.accessUser(request, userId -> paymentService.hesoyam(accountId, userId));
+    public void hesoyam(HttpServletRequest request, @PathVariable long accountId) {
+        jwtService.accessUserVoid(request, userId -> paymentService.hesoyam(accountId, userId));
     }
 }

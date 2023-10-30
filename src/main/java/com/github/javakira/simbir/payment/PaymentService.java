@@ -2,12 +2,14 @@ package com.github.javakira.simbir.payment;
 
 import com.github.javakira.simbir.account.Account;
 import com.github.javakira.simbir.account.AccountRepository;
+import com.github.javakira.simbir.account.AccountService;
 import com.github.javakira.simbir.account.Role;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,34 +18,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PaymentService {
     private final AccountRepository accountRepository;
+    private final AccountService service;
 
-    public ResponseEntity<?> hesoyam(long accountId, long userId) {
-        Optional<Account> account = accountRepository.findById(accountId);
-        if (account.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Account with id %d doesnt exist".formatted(accountId));
+    public void hesoyam(long accountId, long userId) {
+        Account account = service.account(accountId);
 
         if (userId == accountId) {
-            account.get().setMoney(account.get().getMoney() + 250_000);
-            accountRepository.save(account.get());
-            return new ResponseEntity<>(HttpStatus.OK);
+            account.setMoney(account.getMoney() + 250_000);
+            accountRepository.save(account);
+            return;
         }
 
-        Optional<Account> user = accountRepository.findById(userId);
-        if (user.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Account with id %d doesnt exist".formatted(userId));
+        Account user = service.account(userId);
 
-        if (user.get().getRole() == Role.admin) {
-            account.get().setMoney(account.get().getMoney() + 250_000);
-            accountRepository.save(account.get());
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (user.getRole() == Role.admin) {
+            account.setMoney(account.getMoney() + 250_000);
+            accountRepository.save(account);
         } else {
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Only admin can replenish money for other accounts");
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Only admin can replenish money for other accounts"
+            );
         }
     }
 
