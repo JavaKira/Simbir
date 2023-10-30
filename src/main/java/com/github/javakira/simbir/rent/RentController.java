@@ -26,9 +26,16 @@ public class RentController {
 
     @Operation(summary = "Получение информации об аренде по id")
     @SecurityRequirement(name = "Bearer Authentication")
-    @GetMapping("{rentId}")
+    @GetMapping("/{rentId}")
     public RentDto rentInfo(@PathVariable Long rentId, HttpServletRequest request) {
         return jwtService.accessUser(request, userId -> service.rentInfo(rentId, userId));
+    }
+
+    @Operation(summary = "Получение аренд текущего пользователя")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/MyRents")
+    public List<RentDto> rents(HttpServletRequest request) {
+        return jwtService.accessUser(request, service::rents);
     }
 
     @Operation(summary = "Получение истории аренд текущего аккаунта")

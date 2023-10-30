@@ -73,6 +73,20 @@ public class RentService {
                 .map(RentDto::from)
                 .toList();
     }
+
+    public List<RentDto> rents(long userId) {
+        //check id exists
+        accountService.account(userId);
+
+        return repository
+                .findAll()
+                .stream()
+                .filter(rent -> rent.getRentState() == Rent.RentState.opened)
+                .filter(rent -> rent.getOwnerId().equals(userId))
+                .map(RentDto::from)
+                .toList();
+    }
+
     public List<RentDto> transportHistory(long transportId, long userId) {
         Transport transport = transportService.transport(transportId);
 

@@ -34,6 +34,13 @@ public class AdminRentController {
         return adminService.checkAdmin(request, currentUserId -> service.userHistory(userId));
     }
 
+    @Operation(summary = "Получение аренд пользователя")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @GetMapping("/UserRents/{id}")
+    public List<RentDto> rents(HttpServletRequest request, @PathVariable long id) {
+        return adminService.checkAdmin(request, userId -> service.rents(id));
+    }
+
     @Operation(summary = "Получение истории аренд транспорта с id={transportId}")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/TransportHistory/{transportId}")

@@ -54,6 +54,19 @@ public class AdminRentService {
                 .toList();
     }
 
+    public List<RentDto> rents(long userId) {
+        //check id exists
+        accountService.account(userId);
+
+        return repository
+                .findAll()
+                .stream()
+                .filter(rent -> rent.getRentState() == Rent.RentState.opened)
+                .filter(rent -> rent.getOwnerId().equals(userId))
+                .map(RentDto::from)
+                .toList();
+    }
+
     public RentDto newRent(NewRentAdminRequest request) {
         Transport transport = transportService.transport(request.getTransportId());
 
