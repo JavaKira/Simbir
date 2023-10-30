@@ -21,5 +21,5 @@ public interface JwtService {
 
     String generateToken(Account account);
 
-    ResponseEntity<?> accessUser(HttpServletRequest request, Function<Long, ResponseEntity<?>> userConsumer);
+    <T> T accessUser(HttpServletRequest request, Function<Long, T> userConsumer);
 }

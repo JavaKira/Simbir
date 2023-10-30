@@ -36,7 +36,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/configuration/security",
                                 "/swagger-ui/**",
-                                "/webjars/**")
+                                "/webjars/**",
+                                "/error")
                         .permitAll()
                         .requestMatchers(
                                 HttpMethod.GET,

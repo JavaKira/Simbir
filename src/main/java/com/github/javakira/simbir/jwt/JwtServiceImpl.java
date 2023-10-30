@@ -76,19 +76,9 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public ResponseEntity<?> accessUser(HttpServletRequest request, Function<Long, ResponseEntity<?>> userConsumer) {
-        Optional<String> jwt = token(request);
-        if (jwt.isPresent()) {
-            long userId = extractId(jwt.get());
-
-            try {
-                return userConsumer.apply(userId);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.toString());
-            }
-        } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
+    public <T> T accessUser(HttpServletRequest request, Function<Long, T> userConsumer) {
+        long userId = extractId(token(request).orElseThrow());
+        return userConsumer.apply(userId);
     }
 
     private boolean isTokenExpired(String token) {

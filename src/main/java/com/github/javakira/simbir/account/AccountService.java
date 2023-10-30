@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -19,18 +20,12 @@ public class AccountService {
     private final JwtService jwtService;
     private final AuthenticationManager authManager;
 
-    public ResponseEntity<?> accountInfo(Long id) {
-        Optional<Account> accountOptional = repository.findById(id);
-        if (accountOptional.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Account with id %d doesnt exist".formatted(id));
-
-        Account account = accountOptional.get();
-        return ResponseEntity.ok(AccountDto.from(account));
+    public AccountDto accountInfo(long id) {
+        Account account = account(id);
+        return AccountDto.from(account);
     }
 
-    public ResponseEntity<?> singIn(AuthRequest request) {
+    public AuthResponse singIn(AuthRequest request) {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -42,14 +37,15 @@ public class AccountService {
                 .orElseThrow();
 
         String jwtToken = jwtService.generateToken(account);
-        return ResponseEntity.ok(new AuthResponse(jwtToken));
+        return new AuthResponse(jwtToken);
     }
 
-    public ResponseEntity<?> singUp(RegisterRequest request) {
+    public AuthResponse singUp(RegisterRequest request) {
         if (repository.findByUsername(request.getUsername()).isPresent())
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Username '%s' is already in use".formatted(request.getUsername()));
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username '%s' is already in use".formatted(request.getUsername())
+            );
 
         Account account = Account.builder()
                 .username(request.getUsername())
@@ -58,30 +54,36 @@ public class AccountService {
                 .build();
         repository.save(account);
         String jwtToken = jwtService.generateToken(account);
-        return ResponseEntity.ok(new AuthResponse(jwtToken));
+        return new AuthResponse(jwtToken);
     }
 
-    public ResponseEntity<?> update(long id, UpdateRequest request) {
+    public AuthResponse update(long id, UpdateRequest request) {
         Optional<Account> accountOptional = repository.findByUsername(request.getUsername());
         if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id))
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Username '%s' is already in use".formatted(request.getUsername()));
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username '%s' is already in use".formatted(request.getUsername())
+            );
 
-        accountOptional = repository.findById(id);
-        if (accountOptional.isEmpty())
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("Account with id %d doesnt exist".formatted(id));
-
-        accountOptional.get().setUsername(request.getUsername());
-        accountOptional.get().setPassword(passwordEncoder.encode(request.getPassword()));
-        repository.save(accountOptional.get());
+        Account account = account(id);
+        account.setUsername(request.getUsername());
+        account.setPassword(passwordEncoder.encode(request.getPassword()));
+        repository.save(account);
         return singIn(new AuthRequest(request.getUsername(), request.getPassword()));
     }
 
-    public ResponseEntity<?> singOut(String token) {
+    public void singOut(String token) {
         jwtService.banToken(token);
-        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    Account account(long id) {
+        Optional<Account> accountOptional = repository.findById(id);
+        if (accountOptional.isEmpty())
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Account with id %d doesnt exist".formatted(id)
+            );
+
+        return accountOptional.get();
     }
 }

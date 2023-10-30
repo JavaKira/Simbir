@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -20,34 +19,34 @@ public class AccountController {
     @Operation(summary = "Получение данных о текущем аккаунте")
     @SecurityRequirement(name = "Bearer Authentication")
     @GetMapping("/Me")
-    public ResponseEntity<?> me(HttpServletRequest request) {
+    public AccountDto me(HttpServletRequest request) {
         return jwtService.accessUser(request, service::accountInfo);
     }
 
     @Operation(summary = "Получение нового jwt токена пользователя")
     @PostMapping("/SingIn")
-    public ResponseEntity<?> singIn(@RequestBody AuthRequest request) {
+    public AuthResponse singIn(@RequestBody AuthRequest request) {
         return service.singIn(request);
     }
 
     @Operation(summary = "Регистрация нового аккаунта")
     @PostMapping("/SingUp")
-    public ResponseEntity<?> singUp(@RequestBody RegisterRequest request) {
+    public AuthResponse singUp(@RequestBody RegisterRequest request) {
         return service.singUp(request);
     }
 
     @Operation(summary = "Выход из аккаунта")
     @SecurityRequirement(name = "Bearer Authentication")
     @PostMapping("/SingOut")
-    public ResponseEntity<?> singOut(HttpServletRequest request) {
+    public void singOut(HttpServletRequest request) {
         Optional<String> token = jwtService.token(request);
-        return service.singOut(token.orElseThrow());
+        service.singOut(token.orElseThrow());
     }
 
     @Operation(summary = "Обновление своего аккаунта")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/Update")
-    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody UpdateRequest updateRequest) {
+    public AuthResponse update(HttpServletRequest request, @RequestBody UpdateRequest updateRequest) {
         return jwtService.accessUser(request, userId -> service.update(userId, updateRequest));
     }
 }
