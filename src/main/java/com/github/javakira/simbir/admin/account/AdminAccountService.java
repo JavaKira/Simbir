@@ -42,11 +42,7 @@ public class AdminAccountService {
     }
 
     public AccountDto registerAccount(RegisterByAdminRequest request) {
-        if (accountRepository.findByUsername(request.getUsername()).isPresent())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Username '%s' is already in use".formatted(request.getUsername())
-            );
+        service.checkUsername(request.getUsername());
 
         Account account = Account
                 .builder()
@@ -60,14 +56,9 @@ public class AdminAccountService {
     }
 
     public AccountDto updateAccount(long id, UpdateByAdminRequest request) {
-        Optional<Account> accountOptional = accountRepository.findByUsername(request.getUsername());
-        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id))
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Username '%s' is already in use".formatted(request.getUsername())
-            );
-
+        service.checkUsername(request.getUsername(), id);
         Account oldAccount = service.account(id);
+
         Account account = Account
                 .builder()
                 .id(id)
@@ -83,6 +74,7 @@ public class AdminAccountService {
 
     public void deleteAccount(long id) {
         Account account = service.account(id);
+
         rentService.deleteRentByOwner(id);
         transportService.deleteTransportByOwner(id);
         accountRepository.delete(account);

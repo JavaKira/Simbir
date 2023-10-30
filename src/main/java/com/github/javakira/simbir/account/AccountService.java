@@ -41,11 +41,7 @@ public class AccountService {
     }
 
     public AuthResponse singUp(RegisterRequest request) {
-        if (repository.findByUsername(request.getUsername()).isPresent())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Username '%s' is already in use".formatted(request.getUsername())
-            );
+        checkUsername(request.getUsername());
 
         Account account = Account.builder()
                 .username(request.getUsername())
@@ -58,14 +54,9 @@ public class AccountService {
     }
 
     public AuthResponse update(long id, UpdateRequest request) {
-        Optional<Account> accountOptional = repository.findByUsername(request.getUsername());
-        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id))
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Username '%s' is already in use".formatted(request.getUsername())
-            );
-
+        checkUsername(request.getUsername(), id);
         Account account = account(id);
+
         account.setUsername(request.getUsername());
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         repository.save(account);
@@ -85,5 +76,22 @@ public class AccountService {
             );
 
         return accountOptional.get();
+    }
+
+    public void checkUsername(String username, long id) {
+        Optional<Account> accountOptional = repository.findByUsername(username);
+        if (accountOptional.isPresent() && !accountOptional.get().getId().equals(id))
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username '%s' is already in use".formatted(username)
+            );
+    }
+
+    public void checkUsername(String username) {
+        if (repository.findByUsername(username).isPresent())
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username '%s' is already in use".formatted(username)
+            );
     }
 }
